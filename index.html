@@ -36,7 +36,7 @@
 html,body{height:100%;overflow:hidden;}
 body{
   font-family:'DM Sans',sans-serif;
-  background:var(--navy);
+  background:var(--teal-lt);
   color:var(--white);
   display:flex;
   flex-direction:column;
@@ -46,15 +46,15 @@ body{
 /* ── LOADING ── */
 #loading{
   position:fixed;inset:0;
-  background:var(--navy);
+  background:var(--teal-lt);
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   gap:16px;z-index:999;
 }
-.load-crown{font-size:40px;animation:pulse 1.2s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.9);}}
-.load-text{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--teal);}
-.load-sub{font-size:13px;color:var(--muted);}
+.load-crown{width:72px;height:72px;animation:pulse 1.2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.85;transform:scale(0.93);}}
+.load-text{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--navy);}
+.load-sub{font-size:13px;color:var(--teal-dk);}
 
 /* ── TOP BAR ── */
 #topbar{
@@ -71,8 +71,10 @@ body{
   font-size:22px;font-weight:900;
   color:var(--white);
   letter-spacing:0.3px;
+  display:flex;align-items:center;gap:8px;
 }
 .topbar-logo span{color:var(--teal);}
+.topbar-logo-icon{width:32px;height:32px;flex-shrink:0;}
 .topbar-period{
   display:flex;gap:6px;align-items:center;
 }
@@ -395,14 +397,29 @@ body{
 
 <!-- LOADING -->
 <div id="loading">
-  <div class="load-crown">👑</div>
+  <div class="load-crown">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <rect x="3" y="3" width="194" height="194" rx="42" fill="#0F2940" stroke="#00B4A6" stroke-width="6"/>
+      <polygon points="92,146 30,146 55,76" fill="#F4A300"/>
+      <polygon points="108,146 168,146 142,96" fill="#F4A300"/>
+      <polygon points="100,50 124,106 124,160 76,160 76,106" fill="#00B4A6"/>
+      <rect x="28" y="141" width="144" height="22" rx="6" fill="#F4A300"/>
+      <circle cx="55" cy="76" r="9" fill="#FFFFFF"/>
+      <circle cx="100" cy="50" r="10" fill="#FFFFFF"/>
+      <circle cx="142" cy="96" r="8" fill="#FFFFFF"/>
+      <circle cx="100" cy="50" r="16" fill="none" stroke="#00B4A6" stroke-width="3" stroke-dasharray="4 3"/>
+    </svg>
+  </div>
   <div class="load-text">OwnIt</div>
   <div class="load-sub">Syncing your data...</div>
 </div>
 
 <!-- TOP BAR -->
 <div id="topbar">
-  <div class="topbar-logo">Own<span>It</span></div>
+  <div class="topbar-logo">
+    <img class="topbar-logo-icon" src="OwnIt_Icon.svg" alt="OwnIt crown" onerror="this.style.display=\'none\'">
+    Own<span>It</span>
+  </div>
   <div class="topbar-period">
     <button class="period-btn active" onclick="setPeriod('month',this)">Month</button>
     <button class="period-btn" onclick="setPeriod('year',this)">Year</button>
@@ -415,7 +432,7 @@ body{
 
   <!-- TOTAL EARNINGS VIEW -->
   <div id="view-earnings" class="view active">
-    <div class="page-title">Total Earnings</div>
+    <div class="page-title" style="color:var(--teal);">Total Earnings</div>
     <div class="page-sub" id="earnings-period-label">This month across all businesses</div>
 
     <div class="earnings-hero">
