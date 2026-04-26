@@ -415,7 +415,7 @@ body{
     <span class="tnav-icon">📊</span>Overview
   </button>
   <button class="topnav-btn" id="tnav-docs" onclick="switchPage('docs')">
-    <span class="tnav-icon">📄</span>1099s
+    <span class="tnav-icon">📄</span>Tax Forms
   </button>
   <button class="topnav-btn" id="tnav-export" onclick="switchPage('export')">
     <span class="tnav-icon">📤</span>Export
@@ -463,7 +463,7 @@ body{
         <div class="add-biz-sub">Class or Expense</div>
       </div>
       <div class="add-biz-card" onclick="showAddOptions('skincare')">
-        <div class="add-biz-emoji">✨</div>
+        <div class="add-biz-emoji">🧴</div>
         <div class="add-biz-name">Skincare Line</div>
         <div class="add-biz-sub">Sale or Expense</div>
       </div>
@@ -476,60 +476,40 @@ body{
     <div id="overview-content"></div>
   </div>
 
-  <!-- ═══ 1099s PAGE ═══ -->
+  <!-- ═══ TAX FORMS PAGE ═══ -->
   <div id="page-docs" class="page">
-    <div class="page-title">1099 Forms</div>
-    <div class="page-sub">Store your 1099-NEC and 1099-K forms by year.</div>
+    <div class="page-title">Tax Forms</div>
+    <div class="page-sub">Store your 1099-NEC, 1099-K, and Schedule C forms by year.</div>
 
     <div class="upload-zone" onclick="showToast('File upload available in your personal app!')">
       <div class="upload-zone-icon">📎</div>
-      <div class="upload-zone-text">Tap to upload a 1099 form</div>
-      <div class="upload-zone-sub">PDF or image · 1099-NEC or 1099-K</div>
+      <div class="upload-zone-text">Tap to upload 1099 or Schedule C form</div>
+      <div class="upload-zone-sub">PDF or image · 1099-NEC, 1099-K, or Schedule C</div>
     </div>
 
-    <div class="year-badge">2024</div>
-    <div class="doc-card">
-      <div class="doc-icon">📄</div>
-      <div class="doc-info">
-        <div class="doc-name">1099-NEC · Tutoring Platform</div>
-        <div class="doc-meta">Tax Year 2024 · Uploaded Jan 28, 2025</div>
-      </div>
-      <div class="doc-badge">NEC</div>
-    </div>
-    <div class="doc-card">
-      <div class="doc-icon">📄</div>
-      <div class="doc-info">
-        <div class="doc-name">1099-K · PayPal</div>
-        <div class="doc-meta">Tax Year 2024 · Uploaded Feb 3, 2025</div>
-      </div>
-      <div class="doc-badge">K</div>
-    </div>
-    <div class="doc-card">
-      <div class="doc-icon">📄</div>
-      <div class="doc-info">
-        <div class="doc-name">1099-NEC · Music Venue</div>
-        <div class="doc-meta">Tax Year 2024 · Uploaded Feb 10, 2025</div>
-      </div>
-      <div class="doc-badge">NEC</div>
+    <!-- Filters -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+      <select class="form-select" id="doc-filter-year" onchange="renderDocs()" style="flex:1;min-width:90px;padding:8px 10px;font-size:13px;">
+        <option value="">All Years</option>
+        <option value="2024">2024</option>
+        <option value="2023">2023</option>
+      </select>
+      <select class="form-select" id="doc-filter-biz" onchange="renderDocs()" style="flex:1;min-width:110px;padding:8px 10px;font-size:13px;">
+        <option value="">All Businesses</option>
+        <option value="Tutoring">Tutoring</option>
+        <option value="Music Gigs">Music Gigs</option>
+        <option value="Dance Classes">Dance Classes</option>
+        <option value="Skincare Line">Skincare Line</option>
+      </select>
+      <select class="form-select" id="doc-filter-type" onchange="renderDocs()" style="flex:1;min-width:110px;padding:8px 10px;font-size:13px;">
+        <option value="">All Types</option>
+        <option value="1099-NEC">1099-NEC</option>
+        <option value="1099-K">1099-K</option>
+        <option value="Schedule C">Schedule C</option>
+      </select>
     </div>
 
-    <div class="year-badge">2023</div>
-    <div class="doc-card">
-      <div class="doc-icon">📄</div>
-      <div class="doc-info">
-        <div class="doc-name">1099-NEC · Tutoring Platform</div>
-        <div class="doc-meta">Tax Year 2023 · Uploaded Jan 31, 2024</div>
-      </div>
-      <div class="doc-badge">NEC</div>
-    </div>
-    <div class="doc-card">
-      <div class="doc-icon">📄</div>
-      <div class="doc-info">
-        <div class="doc-name">1099-K · Etsy</div>
-        <div class="doc-meta">Tax Year 2023 · Uploaded Feb 5, 2024</div>
-      </div>
-      <div class="doc-badge">K</div>
-    </div>
+    <div id="docs-list"></div>
   </div>
 
   <!-- ═══ EXPORT PAGE ═══ -->
@@ -554,7 +534,7 @@ body{
           <button class="export-dl-btn" onclick="exportCSV('dance')">Download</button>
         </div>
         <div class="export-biz-row">
-          <div class="export-biz-name"><span>✨</span> Skincare Line</div>
+          <div class="export-biz-name"><span>🧴</span> Skincare Line</div>
           <button class="export-dl-btn" onclick="exportCSV('skincare')">Download</button>
         </div>
       </div>
@@ -599,7 +579,7 @@ body{
     <div class="tab-label">Dance</div>
   </button>
   <button class="tab-btn" id="tab-skincare" onclick="switchBiz('skincare')">
-    <div class="tab-icon">✨</div>
+    <div class="tab-icon">🧴</div>
     <div class="tab-label">Skincare</div>
   </button>
 </div>
@@ -811,7 +791,7 @@ body{
       <input type="text" class="form-input" id="ski-marketplace" placeholder="e.g. Etsy, Farmers Market">
     </div>
     <div class="form-group">
-      <label class="form-label">Payment Method</label>
+      <label class="form-label">Customer Payment Method</label>
       <select class="form-select" id="ski-payment">
         <option value="">Select...</option>
         <option>Business Card</option>
@@ -1126,7 +1106,7 @@ var musPayType = 'flat';
 var allSessions = [], allEvents = [], allClasses = [], allSales = [], allExpenses = [], allYTD = [];
 
 var BIZ_NAMES = { tutoring: 'Tutoring', music: 'Music Gigs', dance: 'Dance Classes', skincare: 'Skincare Line' };
-var BIZ_EMOJI = { tutoring: '📚', music: '🎵', dance: '💃', skincare: '✨' };
+var BIZ_EMOJI = { tutoring: '📚', music: '🎵', dance: '💃', skincare: '🧴' };
 var INCOME_LABELS = { tutoring: 'Sessions', music: 'Events', dance: 'Classes', skincare: 'Product Sales' };
 
 // ═══════════════════════════════════
@@ -1149,6 +1129,7 @@ async function loadAll() {
     allExpenses = Array.isArray(res[4]) ? res[4] : [];
     allYTD      = Array.isArray(res[5]) ? res[5] : [];
     renderAll();
+    renderDocs();
     showApp();
   } catch(e) { showApp(); }
 }
@@ -1325,7 +1306,7 @@ function buildIncomeList(biz) {
   }
   if (biz === 'skincare') {
     items = allSales.filter(function(x) { return inPeriod(x.date); });
-    if (!items.length) return '<div class="empty-state"><div class="empty-icon">✨</div>No sales yet. Tap + Add to log one.</div>';
+    if (!items.length) return '<div class="empty-state"><div class="empty-icon">🧴</div>No sales yet. Tap + Add to log one.</div>';
     return items.map(function(s) {
       var earn = (parseFloat(s.price)||0)*(parseInt(s.quantity)||0);
       return '<div class="log-entry" onclick="editSale(\'' + s.id + '\')">' +
@@ -1851,6 +1832,60 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(function() { t.classList.remove('show'); }, 2200);
+}
+
+// ═══════════════════════════════════
+//  TAX FORMS (mock data)
+// ═══════════════════════════════════
+var MOCK_DOCS = [
+  { year: '2024', biz: 'Tutoring',      type: '1099-NEC',   name: '1099-NEC · Tutoring Platform',  uploaded: 'Jan 28, 2025' },
+  { year: '2024', biz: 'Music Gigs',    type: '1099-NEC',   name: '1099-NEC · Music Venue',         uploaded: 'Feb 10, 2025' },
+  { year: '2024', biz: 'Skincare Line', type: '1099-K',     name: '1099-K · PayPal',                uploaded: 'Feb 3, 2025' },
+  { year: '2024', biz: 'Skincare Line', type: '1099-K',     name: '1099-K · Etsy',                  uploaded: 'Feb 6, 2025' },
+  { year: '2024', biz: 'Tutoring',      type: 'Schedule C', name: 'Schedule C · Tutoring',          uploaded: 'Mar 15, 2025' },
+  { year: '2023', biz: 'Tutoring',      type: '1099-NEC',   name: '1099-NEC · Tutoring Platform',  uploaded: 'Jan 31, 2024' },
+  { year: '2023', biz: 'Skincare Line', type: '1099-K',     name: '1099-K · Etsy',                  uploaded: 'Feb 5, 2024' },
+  { year: '2023', biz: 'Dance Classes', type: 'Schedule C', name: 'Schedule C · Dance Classes',     uploaded: 'Mar 12, 2024' },
+];
+
+function renderDocs() {
+  var filterYear = document.getElementById('doc-filter-year').value;
+  var filterBiz  = document.getElementById('doc-filter-biz').value;
+  var filterType = document.getElementById('doc-filter-type').value;
+
+  var filtered = MOCK_DOCS.filter(function(d) {
+    return (!filterYear || d.year === filterYear) &&
+           (!filterBiz  || d.biz  === filterBiz)  &&
+           (!filterType || d.type === filterType);
+  });
+
+  if (!filtered.length) {
+    document.getElementById('docs-list').innerHTML = '<div class="empty-state"><div class="empty-icon">📄</div>No forms match your filters.</div>';
+    return;
+  }
+
+  // Group by year
+  var byYear = {};
+  filtered.forEach(function(d) {
+    if (!byYear[d.year]) byYear[d.year] = [];
+    byYear[d.year].push(d);
+  });
+
+  var badgeColors = { '1099-NEC': 'var(--teal)', '1099-K': 'var(--gold)', 'Schedule C': '#9b7fe8' };
+  var html = '';
+  Object.keys(byYear).sort(function(a,b) { return b - a; }).forEach(function(yr) {
+    html += '<div class="year-badge">' + yr + '</div>';
+    byYear[yr].forEach(function(d) {
+      var color = badgeColors[d.type] || 'var(--teal)';
+      html += '<div class="doc-card">';
+      html += '<div class="doc-icon">📄</div>';
+      html += '<div class="doc-info"><div class="doc-name">' + d.name + '</div>';
+      html += '<div class="doc-meta">Tax Year ' + d.year + ' · ' + d.biz + ' · Uploaded ' + d.uploaded + '</div></div>';
+      html += '<div class="doc-badge" style="background:rgba(0,0,0,0.2);color:' + color + '">' + d.type.replace('1099-','') + '</div>';
+      html += '</div>';
+    });
+  });
+  document.getElementById('docs-list').innerHTML = html;
 }
 
 // ═══════════════════════════════════
