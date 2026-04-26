@@ -20,7 +20,6 @@
   --gold:    #F4A300;
   --gold-lt: #FDE8B0;
   --white:   #FFFFFF;
-  --off:     #F0F8FF;
   --muted:   #8A9BB0;
   --border:  rgba(0,180,166,0.2);
   --green:   #1DB954;
@@ -29,8 +28,8 @@
   --card:    #0F2940;
   --r:       12px;
   --r-lg:    20px;
-  --nav-h:   64px;
-  --tab-h:   68px;
+  --topnav-h: 50px;
+  --tab-h:    68px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;overflow:hidden;}
@@ -38,8 +37,7 @@ body{
   font-family:'DM Sans',sans-serif;
   background:var(--teal-lt);
   color:var(--white);
-  display:flex;
-  flex-direction:column;
+  display:flex;flex-direction:column;
   -webkit-tap-highlight-color:transparent;
 }
 
@@ -56,62 +54,69 @@ body{
 .load-text{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--navy);}
 .load-sub{font-size:13px;color:var(--teal-dk);}
 
-/* ── TOP BAR ── */
-#topbar{
-  height:var(--nav-h);
+/* ── HEADER BAR (logo + biz name) ── */
+#headerbar{
+  height:52px;
   background:var(--navy2);
   border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 16px;
-  flex-shrink:0;
-  position:relative;z-index:10;
+  padding:0 16px;flex-shrink:0;z-index:20;
 }
-.topbar-logo{
+.header-logo{
   font-family:'Playfair Display',serif;
-  font-size:22px;font-weight:900;
-  color:var(--white);
-  letter-spacing:0.3px;
-  display:flex;align-items:center;gap:8px;
+  font-size:20px;font-weight:900;color:var(--white);
+  display:flex;align-items:center;gap:8px;letter-spacing:0.3px;
 }
-.topbar-logo span{color:var(--teal);}
-.topbar-logo-icon{width:32px;height:32px;flex-shrink:0;}
-.topbar-period{
-  display:flex;gap:6px;align-items:center;
+.header-logo span{color:var(--teal);}
+.header-logo-icon{width:28px;height:28px;flex-shrink:0;}
+.header-biz{
+  font-size:12px;font-weight:700;
+  color:var(--teal);letter-spacing:0.5px;
+  text-transform:uppercase;
 }
-.period-btn{
-  font-size:11px;font-weight:600;
-  padding:4px 10px;border-radius:20px;
-  border:1.5px solid var(--border);
-  background:transparent;color:var(--muted);
-  cursor:pointer;transition:all 0.2s;
-}
-.period-btn.active{background:var(--teal);border-color:var(--teal);color:var(--white);}
 
-/* ── MAIN SCROLL AREA ── */
+/* ── TOP NAV ── */
+#topnav{
+  height:var(--topnav-h);
+  background:var(--navy2);
+  border-bottom:2px solid var(--border);
+  display:flex;align-items:stretch;
+  flex-shrink:0;z-index:19;
+}
+.topnav-btn{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:2px;border:none;background:transparent;
+  color:var(--muted);font-size:9px;font-weight:700;
+  letter-spacing:0.4px;text-transform:uppercase;
+  cursor:pointer;transition:color 0.2s;
+  border-bottom:2px solid transparent;
+  margin-bottom:-2px;
+  -webkit-tap-highlight-color:transparent;
+}
+.topnav-btn .tnav-icon{font-size:16px;line-height:1;}
+.topnav-btn.active{color:var(--teal);border-bottom-color:var(--teal);}
+
+/* ── MAIN SCROLL ── */
 #main{
-  flex:1;
-  overflow-y:auto;
-  overflow-x:hidden;
+  flex:1;overflow-y:auto;overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
   padding:16px 16px calc(var(--tab-h) + 16px);
 }
 
-/* ── BOTTOM TAB BAR ── */
+/* ── BOTTOM BUSINESS TABS ── */
 #tabbar{
   height:var(--tab-h);
   background:var(--navy2);
   border-top:1px solid var(--border);
-  display:flex;
-  flex-shrink:0;
-  position:relative;z-index:10;
+  display:flex;flex-shrink:0;z-index:20;
 }
 .tab-btn{
   flex:1;display:flex;flex-direction:column;
   align-items:center;justify-content:center;
-  gap:3px;cursor:pointer;
-  border:none;background:transparent;
-  color:var(--muted);transition:color 0.2s;
-  padding:8px 2px;
+  gap:3px;cursor:pointer;border:none;
+  background:transparent;color:var(--muted);
+  transition:color 0.2s;padding:8px 2px;
   -webkit-tap-highlight-color:transparent;
 }
 .tab-btn.active{color:var(--teal);}
@@ -119,276 +124,251 @@ body{
 .tab-label{font-size:9px;font-weight:600;letter-spacing:0.3px;text-transform:uppercase;}
 
 /* ── VIEWS ── */
-.view{display:none;}
-.view.active{display:block;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* ── PAGE HEADERS ── */
+.page-title{
+  font-family:'Playfair Display',serif;
+  font-size:26px;font-weight:900;color:var(--white);
+  margin-bottom:4px;
+}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:16px;}
+
+/* ── STAT CARDS ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:14px;text-align:center;
+}
+.stat-card.full{grid-column:span 2;}
+.stat-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;}
+.stat-value{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;}
+.c-income{color:var(--blue);}
+.c-expense{color:var(--red);}
+.c-profit{color:var(--green);}
+.c-loss{color:var(--red);}
+
+/* ── YTD CARD ── */
+.ytd-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:14px;margin-bottom:12px;
+}
+.ytd-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.ytd-lbl{font-size:12px;font-weight:600;color:var(--muted);flex:none;}
+.ytd-input{
+  flex:1;min-width:80px;background:var(--navy3);
+  border:1px solid var(--border);border-radius:8px;
+  color:var(--white);font-size:14px;font-weight:600;
+  padding:6px 10px;font-family:'DM Sans',sans-serif;
+}
+.ytd-save{
+  background:var(--teal);color:var(--white);border:none;
+  border-radius:8px;font-size:12px;font-weight:600;
+  padding:7px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;
+}
 
 /* ── SECTION HEADER ── */
-.section-hdr{
+.sec-hdr{
   display:flex;align-items:center;justify-content:space-between;
-  margin:20px 0 10px;
+  margin:18px 0 10px;
 }
-.section-title{
-  font-size:13px;font-weight:700;
-  color:var(--muted);
-  text-transform:uppercase;letter-spacing:1px;
-}
+.sec-title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
 .add-btn{
   display:flex;align-items:center;gap:5px;
   font-size:12px;font-weight:600;color:var(--teal);
-  background:rgba(0,180,166,0.1);
-  border:1px solid rgba(0,180,166,0.25);
-  border-radius:20px;padding:4px 12px;
-  cursor:pointer;transition:all 0.2s;
-}
-.add-btn:active{background:rgba(0,180,166,0.2);}
-
-/* ── CARDS ── */
-.card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--r-lg);
-  padding:16px;
-  margin-bottom:10px;
-}
-
-/* ── EARNINGS SUMMARY (Total Earnings) ── */
-.earnings-hero{
-  background:linear-gradient(135deg,var(--navy2) 0%,var(--navy3) 100%);
-  border:1px solid var(--border);
-  border-radius:var(--r-lg);
-  padding:20px;
-  margin-bottom:16px;
-  text-align:center;
-}
-.earnings-hero-label{
-  font-size:11px;font-weight:700;color:var(--muted);
-  text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;
-}
-.earnings-hero-amount{
-  font-family:'Playfair Display',serif;
-  font-size:42px;font-weight:900;color:var(--green);
-  line-height:1;margin-bottom:4px;
-}
-.earnings-hero-sub{font-size:12px;color:var(--muted);}
-
-.biz-summary-card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--r-lg);
-  padding:16px;margin-bottom:10px;
-}
-.biz-summary-header{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:12px;
-}
-.biz-summary-name{
-  font-size:15px;font-weight:700;
-  display:flex;align-items:center;gap:8px;
-}
-.biz-emoji{font-size:18px;}
-.biz-summary-rows{display:flex;flex-direction:column;gap:6px;}
-.biz-row{
-  display:flex;justify-content:space-between;
-  font-size:13px;
-}
-.biz-row-label{color:var(--muted);}
-.biz-row-val{font-weight:600;}
-.val-income{color:var(--blue);}
-.val-expense{color:var(--red);}
-.val-profit{color:var(--green);}
-.val-loss{color:var(--red);}
-.biz-divider{border:none;border-top:1px solid var(--border);margin:8px 0;}
-
-/* ── OVERVIEW ── */
-.overview-stats{
-  display:grid;grid-template-columns:1fr 1fr;gap:10px;
-  margin-bottom:16px;
-}
-.stat-card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--r-lg);
-  padding:14px;text-align:center;
-}
-.stat-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;}
-.stat-value{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;}
-.stat-value.income{color:var(--blue);}
-.stat-value.expense{color:var(--red);}
-.stat-value.profit{color:var(--green);}
-.stat-value.loss{color:var(--red);}
-
-/* income ytd input */
-.ytd-card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--r-lg);
-  padding:14px;margin-bottom:10px;
-}
-.ytd-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.ytd-label{font-size:12px;font-weight:600;color:var(--muted);flex:none;}
-.ytd-input{
-  flex:1;min-width:100px;
-  background:var(--navy3);
-  border:1px solid var(--border);
-  border-radius:8px;color:var(--white);
-  font-size:14px;font-weight:600;
-  padding:6px 10px;
-  font-family:'DM Sans',sans-serif;
-}
-.ytd-date{
-  font-size:11px;color:var(--muted);flex:none;
-}
-.ytd-save-btn{
-  background:var(--teal);color:var(--white);
-  border:none;border-radius:8px;
-  font-size:12px;font-weight:600;
-  padding:6px 14px;cursor:pointer;
+  background:rgba(0,180,166,0.1);border:1px solid rgba(0,180,166,0.25);
+  border-radius:20px;padding:4px 12px;cursor:pointer;
 }
 
 /* ── LOG ENTRIES ── */
 .log-entry{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--r);
-  padding:12px 14px;
-  margin-bottom:8px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:12px 14px;margin-bottom:8px;
   display:flex;justify-content:space-between;align-items:flex-start;
   cursor:pointer;transition:border-color 0.2s;
 }
 .log-entry:active{border-color:var(--teal);}
-.log-entry-left{flex:1;}
-.log-entry-title{font-size:14px;font-weight:600;margin-bottom:2px;}
-.log-entry-meta{font-size:11px;color:var(--muted);}
-.log-entry-right{text-align:right;flex-shrink:0;margin-left:12px;}
-.log-entry-amount{font-size:15px;font-weight:700;}
-.log-entry-payment{font-size:10px;color:var(--muted);margin-top:2px;}
-.amount-income{color:var(--blue);}
-.amount-expense{color:var(--red);}
-
-.empty-state{
-  text-align:center;padding:32px 16px;color:var(--muted);
-  font-size:13px;
+.le-left{flex:1;}
+.le-title{font-size:14px;font-weight:600;margin-bottom:2px;}
+.le-meta{font-size:11px;color:var(--muted);}
+.le-right{text-align:right;flex-shrink:0;margin-left:12px;}
+.le-amount{font-size:15px;font-weight:700;}
+.le-pay{font-size:10px;color:var(--muted);margin-top:2px;}
+.cat-pill{
+  display:inline-block;font-size:10px;font-weight:600;
+  padding:2px 8px;border-radius:10px;
+  background:rgba(0,180,166,0.12);color:var(--teal);margin-top:3px;
 }
+.empty-state{text-align:center;padding:32px 16px;color:var(--muted);font-size:13px;}
 .empty-icon{font-size:32px;margin-bottom:8px;}
+
+/* ── EARNINGS HERO ── */
+.earn-hero{
+  background:linear-gradient(135deg,var(--navy2),var(--navy3));
+  border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:20px;margin-bottom:16px;text-align:center;
+}
+.earn-hero-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.earn-hero-amt{font-family:'Playfair Display',serif;font-size:42px;font-weight:900;color:var(--green);line-height:1;margin-bottom:4px;}
+.earn-hero-sub{font-size:12px;color:var(--muted);}
+
+.biz-earn-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:16px;margin-bottom:10px;
+}
+.biz-earn-name{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.biz-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}
+.biz-row-lbl{color:var(--muted);}
+.biz-divider{border:none;border-top:1px solid var(--border);margin:8px 0;}
+
+/* ── PERIOD BUTTONS ── */
+.period-row{display:flex;gap:6px;margin-bottom:14px;}
+.period-btn{
+  font-size:11px;font-weight:600;padding:5px 12px;
+  border-radius:20px;border:1.5px solid var(--border);
+  background:transparent;color:var(--muted);cursor:pointer;transition:all 0.2s;
+  font-family:'DM Sans',sans-serif;
+}
+.period-btn.active{background:var(--teal);border-color:var(--teal);color:var(--white);}
+
+/* ── EXPORT PAGE ── */
+.export-section{margin-bottom:20px;}
+.export-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:16px;margin-bottom:10px;
+}
+.export-card-title{font-size:14px;font-weight:700;margin-bottom:4px;}
+.export-card-sub{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.export-biz-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--border);
+}
+.export-biz-row:last-child{border-bottom:none;padding-bottom:0;}
+.export-biz-name{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
+.export-dl-btn{
+  font-size:11px;font-weight:700;color:var(--navy);
+  background:var(--teal);border:none;border-radius:8px;
+  padding:6px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;
+}
+.export-dl-btn.gold{background:var(--gold);}
+
+/* ── 1099 PAGE ── */
+.doc-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:16px;margin-bottom:10px;
+  display:flex;align-items:center;gap:12px;
+}
+.doc-icon{font-size:28px;flex-shrink:0;}
+.doc-info{flex:1;}
+.doc-name{font-size:14px;font-weight:600;margin-bottom:2px;}
+.doc-meta{font-size:11px;color:var(--muted);}
+.doc-badge{
+  font-size:10px;font-weight:700;padding:3px 8px;
+  border-radius:8px;background:rgba(0,180,166,0.15);color:var(--teal);
+}
+.upload-zone{
+  background:var(--card);border:2px dashed var(--border);
+  border-radius:var(--r-lg);padding:28px 20px;
+  text-align:center;margin-bottom:12px;cursor:pointer;
+  transition:border-color 0.2s;
+}
+.upload-zone:hover{border-color:var(--teal);}
+.upload-zone-icon{font-size:32px;margin-bottom:8px;}
+.upload-zone-text{font-size:14px;font-weight:600;color:var(--muted);}
+.upload-zone-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+.year-badge{
+  display:inline-block;font-size:11px;font-weight:700;
+  color:var(--gold);background:rgba(244,163,0,0.1);
+  border-radius:8px;padding:2px 10px;margin:6px 0 10px;
+}
 
 /* ── MODALS ── */
 .modal-overlay{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,0.7);
-  z-index:200;
-  display:flex;align-items:flex-end;
-  opacity:0;pointer-events:none;
-  transition:opacity 0.25s;
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);
+  z-index:200;display:flex;align-items:flex-end;
+  opacity:0;pointer-events:none;transition:opacity 0.25s;
 }
 .modal-overlay.open{opacity:1;pointer-events:all;}
 .modal-sheet{
-  background:var(--navy2);
-  border-radius:20px 20px 0 0;
+  background:var(--navy2);border-radius:20px 20px 0 0;
   border-top:1px solid var(--border);
-  padding:8px 16px 32px;
-  width:100%;
-  max-height:92vh;
-  overflow-y:auto;
+  padding:8px 16px 36px;width:100%;
+  max-height:92vh;overflow-y:auto;
   transform:translateY(100%);
   transition:transform 0.3s cubic-bezier(0.32,0.72,0,1);
 }
 .modal-overlay.open .modal-sheet{transform:translateY(0);}
-.modal-handle{
-  width:36px;height:4px;
-  background:rgba(255,255,255,0.2);
-  border-radius:2px;margin:8px auto 16px;
-}
-.modal-title{
-  font-family:'Playfair Display',serif;
-  font-size:20px;font-weight:700;
-  color:var(--white);margin-bottom:16px;
-}
+.modal-handle{width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:8px auto 16px;}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--white);margin-bottom:16px;}
 
-/* ── FORM ELEMENTS ── */
+/* ── FORMS ── */
 .form-group{margin-bottom:14px;}
-.form-label{
-  display:block;font-size:11px;font-weight:700;
-  color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;
-  margin-bottom:5px;
-}
+.form-label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:5px;}
 .form-input,.form-select{
-  width:100%;
-  background:var(--navy3);
-  border:1px solid var(--border);
-  border-radius:10px;
-  color:var(--white);
-  font-size:15px;
-  font-family:'DM Sans',sans-serif;
-  padding:11px 14px;
-  -webkit-appearance:none;
-  appearance:none;
-  outline:none;
-  transition:border-color 0.2s;
+  width:100%;background:var(--navy3);border:1px solid var(--border);
+  border-radius:10px;color:var(--white);font-size:15px;
+  font-family:'DM Sans',sans-serif;padding:11px 14px;
+  -webkit-appearance:none;appearance:none;outline:none;transition:border-color 0.2s;
 }
 .form-input:focus,.form-select:focus{border-color:var(--teal);}
 .form-select option{background:var(--navy2);color:var(--white);}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-
 .radio-group{display:flex;gap:8px;}
 .radio-btn{
-  flex:1;text-align:center;
-  padding:10px;border-radius:10px;
-  border:1.5px solid var(--border);
-  background:transparent;color:var(--muted);
-  font-size:13px;font-weight:600;
-  cursor:pointer;transition:all 0.2s;
+  flex:1;text-align:center;padding:10px;border-radius:10px;
+  border:1.5px solid var(--border);background:transparent;color:var(--muted);
+  font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;
   font-family:'DM Sans',sans-serif;
 }
 .radio-btn.selected{background:rgba(0,180,166,0.15);border-color:var(--teal);color:var(--teal);}
-
 .submit-btn{
-  width:100%;
-  background:var(--teal);color:var(--white);
-  border:none;border-radius:12px;
-  font-size:15px;font-weight:700;
-  font-family:'DM Sans',sans-serif;
-  padding:15px;cursor:pointer;
-  margin-top:8px;
-  transition:background 0.2s;
+  width:100%;background:var(--teal);color:var(--white);border:none;
+  border-radius:12px;font-size:15px;font-weight:700;
+  font-family:'DM Sans',sans-serif;padding:15px;cursor:pointer;margin-top:8px;
 }
-.submit-btn:active{background:var(--teal-dk);}
-
-.delete-btn{
-  width:100%;
-  background:rgba(229,57,53,0.1);color:var(--red);
-  border:1px solid rgba(229,57,53,0.3);
+.cancel-btn{
+  width:100%;background:transparent;color:var(--muted);border:none;
   border-radius:12px;font-size:14px;font-weight:600;
-  font-family:'DM Sans',sans-serif;
+  font-family:'DM Sans',sans-serif;padding:13px;cursor:pointer;margin-top:4px;
+}
+.delete-btn{
+  width:100%;background:rgba(229,57,53,0.1);color:var(--red);
+  border:1px solid rgba(229,57,53,0.3);border-radius:12px;
+  font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;
   padding:13px;cursor:pointer;margin-top:8px;
 }
 
-/* ── PAGE TITLE ── */
-.page-title{
-  font-family:'Playfair Display',serif;
-  font-size:26px;font-weight:900;
-  color:var(--white);margin-bottom:4px;
+/* ── ADD PAGE (business picker) ── */
+.add-biz-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;}
+.add-biz-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:20px 12px;
+  text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s;
 }
-.page-sub{font-size:13px;color:var(--muted);margin-bottom:16px;}
-
-/* ── CATEGORY PILL ── */
-.cat-pill{
-  display:inline-block;
-  font-size:10px;font-weight:600;
-  padding:2px 8px;border-radius:10px;
-  background:rgba(0,180,166,0.12);
-  color:var(--teal);margin-top:2px;
+.add-biz-card:active{border-color:var(--teal);background:rgba(0,180,166,0.08);}
+.add-biz-emoji{font-size:28px;margin-bottom:8px;}
+.add-biz-name{font-size:13px;font-weight:700;margin-bottom:4px;}
+.add-biz-sub{font-size:11px;color:var(--muted);}
+.add-type-row{display:flex;gap:10px;margin-bottom:20px;}
+.add-type-btn{
+  flex:1;padding:14px;border-radius:var(--r-lg);
+  border:1.5px solid var(--border);background:var(--card);
+  color:var(--white);font-size:13px;font-weight:700;
+  cursor:pointer;text-align:center;transition:all 0.2s;
+  font-family:'DM Sans',sans-serif;
 }
+.add-type-btn:active{border-color:var(--teal);}
+.add-type-btn .atb-icon{font-size:22px;display:block;margin-bottom:4px;}
 
 /* ── TOAST ── */
 #toast{
   position:fixed;bottom:calc(var(--tab-h) + 12px);left:50%;
   transform:translateX(-50%) translateY(20px);
   background:var(--teal);color:var(--white);
-  font-size:13px;font-weight:600;
-  padding:10px 20px;border-radius:20px;
-  opacity:0;transition:all 0.3s;
-  pointer-events:none;z-index:300;
-  white-space:nowrap;
+  font-size:13px;font-weight:600;padding:10px 20px;
+  border-radius:20px;opacity:0;transition:all 0.3s;
+  pointer-events:none;z-index:300;white-space:nowrap;
 }
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
@@ -414,231 +394,247 @@ body{
   <div class="load-sub">Syncing your data...</div>
 </div>
 
-<!-- TOP BAR -->
-<div id="topbar">
-  <div class="topbar-logo">
-    <img class="topbar-logo-icon" src="OwnIt_Icon.svg" alt="OwnIt crown" onerror="this.style.display=\'none\'">
+<!-- HEADER BAR -->
+<div id="headerbar">
+  <div class="header-logo">
+    <img class="header-logo-icon" src="OwnIt_Icon.svg" alt="" onerror="this.style.display='none'">
     Own<span>It</span>
   </div>
-  <div class="topbar-period">
-    <button class="period-btn active" onclick="setPeriod('month',this)">Month</button>
-    <button class="period-btn" onclick="setPeriod('year',this)">Year</button>
-    <button class="period-btn" onclick="setPeriod('all',this)">All</button>
-  </div>
+  <div class="header-biz" id="header-biz-label">Tutoring</div>
+</div>
+
+<!-- TOP NAV -->
+<div id="topnav">
+  <button class="topnav-btn active" id="tnav-earnings" onclick="switchPage('earnings')">
+    <span class="tnav-icon">💰</span>Earnings
+  </button>
+  <button class="topnav-btn" id="tnav-add" onclick="switchPage('add')">
+    <span class="tnav-icon">➕</span>Add
+  </button>
+  <button class="topnav-btn" id="tnav-overview" onclick="switchPage('overview')">
+    <span class="tnav-icon">📊</span>Overview
+  </button>
+  <button class="topnav-btn" id="tnav-docs" onclick="switchPage('docs')">
+    <span class="tnav-icon">📄</span>1099s
+  </button>
+  <button class="topnav-btn" id="tnav-export" onclick="switchPage('export')">
+    <span class="tnav-icon">📤</span>Export
+  </button>
 </div>
 
 <!-- MAIN CONTENT -->
 <div id="main">
 
-  <!-- TOTAL EARNINGS VIEW -->
-  <div id="view-earnings" class="view active">
+  <!-- ═══ EARNINGS PAGE ═══ -->
+  <div id="page-earnings" class="page active">
     <div class="page-title" style="color:var(--teal);">Total Earnings</div>
     <div class="page-sub" id="earnings-period-label">This month across all businesses</div>
-
-    <div class="earnings-hero">
-      <div class="earnings-hero-label">Net Profit</div>
-      <div class="earnings-hero-amount" id="total-net">$0</div>
-      <div class="earnings-hero-sub" id="total-sub">$0 income · $0 expenses</div>
+    <div class="period-row">
+      <button class="period-btn active" onclick="setPeriod('month',this)">Month</button>
+      <button class="period-btn" onclick="setPeriod('year',this)">Year</button>
+      <button class="period-btn" onclick="setPeriod('all',this)">All</button>
     </div>
-
+    <div class="earn-hero">
+      <div class="earn-hero-lbl">Net Profit</div>
+      <div class="earn-hero-amt" id="total-net">$0.00</div>
+      <div class="earn-hero-sub" id="total-sub">$0.00 income · $0.00 expenses</div>
+    </div>
     <div id="earnings-biz-list"></div>
   </div>
 
-  <!-- TUTORING VIEW -->
-  <div id="view-tutoring" class="view">
-    <div class="page-title">Tutoring</div>
-    <div class="page-sub">Sessions &amp; Expenses</div>
-
-    <div class="overview-stats">
-      <div class="stat-card">
-        <div class="stat-label">Sessions</div>
-        <div class="stat-value income" id="tut-income">$0</div>
+  <!-- ═══ ADD PAGE ═══ -->
+  <div id="page-add" class="page">
+    <div class="page-title">Add New Entry</div>
+    <div class="page-sub">Choose a business, then pick what to log.</div>
+    <div class="add-biz-grid">
+      <div class="add-biz-card" onclick="showAddOptions('tutoring')">
+        <div class="add-biz-emoji">📚</div>
+        <div class="add-biz-name">Tutoring</div>
+        <div class="add-biz-sub">Session or Expense</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Expenses</div>
-        <div class="stat-value expense" id="tut-expenses">$0</div>
+      <div class="add-biz-card" onclick="showAddOptions('music')">
+        <div class="add-biz-emoji">🎵</div>
+        <div class="add-biz-name">Music Gigs</div>
+        <div class="add-biz-sub">Event or Expense</div>
       </div>
-      <div class="stat-card" style="grid-column:span 2;">
-        <div class="stat-label">Net Profit</div>
-        <div class="stat-value profit" id="tut-profit">$0</div>
+      <div class="add-biz-card" onclick="showAddOptions('dance')">
+        <div class="add-biz-emoji">💃</div>
+        <div class="add-biz-name">Dance Classes</div>
+        <div class="add-biz-sub">Class or Expense</div>
       </div>
-    </div>
-
-    <!-- Income YTD -->
-    <div class="ytd-card">
-      <div class="stat-label" style="margin-bottom:8px;">Income YTD (Manual)</div>
-      <div class="ytd-row">
-        <span class="ytd-label">$</span>
-        <input type="number" class="ytd-input" id="tut-ytd-amt" placeholder="0.00" inputmode="decimal">
-        <span class="ytd-label">as of</span>
-        <input type="date" class="ytd-input" id="tut-ytd-date" style="max-width:140px;">
-        <button class="ytd-save-btn" onclick="saveYTD(\'tutoring\')">Save</button>
+      <div class="add-biz-card" onclick="showAddOptions('skincare')">
+        <div class="add-biz-emoji">✨</div>
+        <div class="add-biz-name">Skincare Line</div>
+        <div class="add-biz-sub">Sale or Expense</div>
       </div>
     </div>
-
-    <div class="section-hdr">
-      <div class="section-title">Sessions</div>
-      <button class="add-btn" onclick="openModal(\'tut-income-modal\')">+ Add</button>
-    </div>
-    <div id="tut-sessions-list"></div>
-
-    <div class="section-hdr">
-      <div class="section-title">Expenses</div>
-      <button class="add-btn" onclick="openModal(\'tut-expense-modal\')">+ Add</button>
-    </div>
-    <div id="tut-expenses-list"></div>
   </div>
 
-  <!-- MUSIC GIGS VIEW -->
-  <div id="view-music" class="view">
-    <div class="page-title">Music Gigs</div>
-    <div class="page-sub">Events &amp; Expenses</div>
-
-    <div class="overview-stats">
-      <div class="stat-card">
-        <div class="stat-label">Events</div>
-        <div class="stat-value income" id="mus-income">$0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Expenses</div>
-        <div class="stat-value expense" id="mus-expenses">$0</div>
-      </div>
-      <div class="stat-card" style="grid-column:span 2;">
-        <div class="stat-label">Net Profit</div>
-        <div class="stat-value profit" id="mus-profit">$0</div>
-      </div>
-    </div>
-
-    <div class="section-hdr">
-      <div class="section-title">Events</div>
-      <button class="add-btn" onclick="openModal(\'mus-income-modal\')">+ Add</button>
-    </div>
-    <div id="mus-events-list"></div>
-
-    <div class="section-hdr">
-      <div class="section-title">Expenses</div>
-      <button class="add-btn" onclick="openModal(\'mus-expense-modal\')">+ Add</button>
-    </div>
-    <div id="mus-expenses-list"></div>
+  <!-- ═══ OVERVIEW PAGE ═══ -->
+  <div id="page-overview" class="page">
+    <!-- rendered dynamically per active business tab -->
+    <div id="overview-content"></div>
   </div>
 
-  <!-- DANCE CLASSES VIEW -->
-  <div id="view-dance" class="view">
-    <div class="page-title">Dance Classes</div>
-    <div class="page-sub">Classes &amp; Expenses</div>
+  <!-- ═══ 1099s PAGE ═══ -->
+  <div id="page-docs" class="page">
+    <div class="page-title">1099 Forms</div>
+    <div class="page-sub">Store your 1099-NEC and 1099-K forms by year.</div>
 
-    <div class="overview-stats">
-      <div class="stat-card">
-        <div class="stat-label">Classes</div>
-        <div class="stat-value income" id="dan-income">$0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Expenses</div>
-        <div class="stat-value expense" id="dan-expenses">$0</div>
-      </div>
-      <div class="stat-card" style="grid-column:span 2;">
-        <div class="stat-label">Net Profit</div>
-        <div class="stat-value profit" id="dan-profit">$0</div>
-      </div>
+    <div class="upload-zone" onclick="showToast('File upload available in your personal app!')">
+      <div class="upload-zone-icon">📎</div>
+      <div class="upload-zone-text">Tap to upload a 1099 form</div>
+      <div class="upload-zone-sub">PDF or image · 1099-NEC or 1099-K</div>
     </div>
 
-    <div class="section-hdr">
-      <div class="section-title">Classes</div>
-      <button class="add-btn" onclick="openModal(\'dan-income-modal\')">+ Add</button>
+    <div class="year-badge">2024</div>
+    <div class="doc-card">
+      <div class="doc-icon">📄</div>
+      <div class="doc-info">
+        <div class="doc-name">1099-NEC · Tutoring Platform</div>
+        <div class="doc-meta">Tax Year 2024 · Uploaded Jan 28, 2025</div>
+      </div>
+      <div class="doc-badge">NEC</div>
     </div>
-    <div id="dan-classes-list"></div>
+    <div class="doc-card">
+      <div class="doc-icon">📄</div>
+      <div class="doc-info">
+        <div class="doc-name">1099-K · PayPal</div>
+        <div class="doc-meta">Tax Year 2024 · Uploaded Feb 3, 2025</div>
+      </div>
+      <div class="doc-badge">K</div>
+    </div>
+    <div class="doc-card">
+      <div class="doc-icon">📄</div>
+      <div class="doc-info">
+        <div class="doc-name">1099-NEC · Music Venue</div>
+        <div class="doc-meta">Tax Year 2024 · Uploaded Feb 10, 2025</div>
+      </div>
+      <div class="doc-badge">NEC</div>
+    </div>
 
-    <div class="section-hdr">
-      <div class="section-title">Expenses</div>
-      <button class="add-btn" onclick="openModal(\'dan-expense-modal\')">+ Add</button>
+    <div class="year-badge">2023</div>
+    <div class="doc-card">
+      <div class="doc-icon">📄</div>
+      <div class="doc-info">
+        <div class="doc-name">1099-NEC · Tutoring Platform</div>
+        <div class="doc-meta">Tax Year 2023 · Uploaded Jan 31, 2024</div>
+      </div>
+      <div class="doc-badge">NEC</div>
     </div>
-    <div id="dan-expenses-list"></div>
+    <div class="doc-card">
+      <div class="doc-icon">📄</div>
+      <div class="doc-info">
+        <div class="doc-name">1099-K · Etsy</div>
+        <div class="doc-meta">Tax Year 2023 · Uploaded Feb 5, 2024</div>
+      </div>
+      <div class="doc-badge">K</div>
+    </div>
   </div>
 
-  <!-- SKINCARE LINE VIEW -->
-  <div id="view-skincare" class="view">
-    <div class="page-title">Skincare Line</div>
-    <div class="page-sub">Product Sales &amp; Expenses</div>
+  <!-- ═══ EXPORT PAGE ═══ -->
+  <div id="page-export" class="page">
+    <div class="page-title">Export Data</div>
+    <div class="page-sub">Download your records for Google Sheets or your accountant.</div>
 
-    <div class="overview-stats">
-      <div class="stat-card">
-        <div class="stat-label">Product Sales</div>
-        <div class="stat-value income" id="ski-income">$0</div>
+    <div class="export-section">
+      <div class="export-card">
+        <div class="export-card-title">📊 CSV Export</div>
+        <div class="export-card-sub">Download all expenses and income as a spreadsheet. Import directly into Google Sheets.</div>
+        <div class="export-biz-row">
+          <div class="export-biz-name"><span>📚</span> Tutoring</div>
+          <button class="export-dl-btn" onclick="exportCSV('tutoring')">Download</button>
+        </div>
+        <div class="export-biz-row">
+          <div class="export-biz-name"><span>🎵</span> Music Gigs</div>
+          <button class="export-dl-btn" onclick="exportCSV('music')">Download</button>
+        </div>
+        <div class="export-biz-row">
+          <div class="export-biz-name"><span>💃</span> Dance Classes</div>
+          <button class="export-dl-btn" onclick="exportCSV('dance')">Download</button>
+        </div>
+        <div class="export-biz-row">
+          <div class="export-biz-name"><span>✨</span> Skincare Line</div>
+          <button class="export-dl-btn" onclick="exportCSV('skincare')">Download</button>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Expenses</div>
-        <div class="stat-value expense" id="ski-expenses">$0</div>
-      </div>
-      <div class="stat-card" style="grid-column:span 2;">
-        <div class="stat-label">Net Profit</div>
-        <div class="stat-value profit" id="ski-profit">$0</div>
+
+      <div class="export-card">
+        <div class="export-card-title">🧾 Schedule C Summary</div>
+        <div class="export-card-sub">Download a tax-ready expense summary grouped by IRS Schedule C categories.</div>
+        <div class="export-biz-row">
+          <div class="export-biz-name"><span>📚</span> Tutoring</div>
+          <button class="export-dl-btn gold" onclick="exportScheduleC('tutoring')">Download</button>
+        </div>
+        <div class="export-biz-row">
+          <div class="export-biz-name"><span>🎵</span> Music Gigs</div>
+          <button class="export-dl-btn gold" onclick="exportScheduleC('music')">Download</button>
+        </div>
+        <div class="export-biz-row">
+          <div class="export-biz-name"><span>💃</span> Dance Classes</div>
+          <button class="export-dl-btn gold" onclick="exportScheduleC('dance')">Download</button>
+        </div>
+        <div class="export-biz-row">
+          <div class="export-biz-name"><span>✨</span> Skincare Line</div>
+          <button class="export-dl-btn gold" onclick="exportScheduleC('skincare')">Download</button>
+        </div>
       </div>
     </div>
-
-    <!-- Income YTD -->
-    <div class="ytd-card">
-      <div class="stat-label" style="margin-bottom:8px;">Income YTD (Manual)</div>
-      <div class="ytd-row">
-        <span class="ytd-label">$</span>
-        <input type="number" class="ytd-input" id="ski-ytd-amt" placeholder="0.00" inputmode="decimal">
-        <span class="ytd-label">as of</span>
-        <input type="date" class="ytd-input" id="ski-ytd-date" style="max-width:140px;">
-        <button class="ytd-save-btn" onclick="saveYTD(\'skincare\')">Save</button>
-      </div>
-    </div>
-
-    <div class="section-hdr">
-      <div class="section-title">Product Sales</div>
-      <button class="add-btn" onclick="openModal(\'ski-income-modal\')">+ Add</button>
-    </div>
-    <div id="ski-sales-list"></div>
-
-    <div class="section-hdr">
-      <div class="section-title">Expenses</div>
-      <button class="add-btn" onclick="openModal(\'ski-expense-modal\')">+ Add</button>
-    </div>
-    <div id="ski-expenses-list"></div>
   </div>
 
 </div><!-- end #main -->
 
-<!-- BOTTOM TAB BAR -->
+<!-- BOTTOM BUSINESS TABS -->
 <div id="tabbar">
-  <button class="tab-btn active" id="tab-earnings" onclick="switchTab(\'earnings\')">
-    <div class="tab-icon">💰</div>
-    <div class="tab-label">Earnings</div>
-  </button>
-  <button class="tab-btn" id="tab-tutoring" onclick="switchTab(\'tutoring\')">
+  <button class="tab-btn active" id="tab-tutoring" onclick="switchBiz('tutoring')">
     <div class="tab-icon">📚</div>
     <div class="tab-label">Tutoring</div>
   </button>
-  <button class="tab-btn" id="tab-music" onclick="switchTab(\'music\')">
+  <button class="tab-btn" id="tab-music" onclick="switchBiz('music')">
     <div class="tab-icon">🎵</div>
     <div class="tab-label">Music</div>
   </button>
-  <button class="tab-btn" id="tab-dance" onclick="switchTab(\'dance\')">
+  <button class="tab-btn" id="tab-dance" onclick="switchBiz('dance')">
     <div class="tab-icon">💃</div>
     <div class="tab-label">Dance</div>
   </button>
-  <button class="tab-btn" id="tab-skincare" onclick="switchTab(\'skincare\')">
+  <button class="tab-btn" id="tab-skincare" onclick="switchBiz('skincare')">
     <div class="tab-icon">✨</div>
     <div class="tab-label">Skincare</div>
   </button>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
-<!-- ══════════════════════════════════════
-     INCOME MODALS
-══════════════════════════════════════ -->
-
-<!-- TUTORING SESSION MODAL -->
-<div class="modal-overlay" id="tut-income-modal">
+<!-- ══════════════════════════════
+     ADD-TYPE PICKER MODAL
+══════════════════════════════ -->
+<div class="modal-overlay" id="add-type-modal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="tut-income-modal-title">Log Session</div>
-    <input type="hidden" id="tut-session-edit-id">
+    <div class="modal-title" id="add-type-title">Add to Tutoring</div>
+    <div class="add-type-row">
+      <button class="add-type-btn" id="add-income-btn" onclick="openIncomeFromPicker()">
+        <span class="atb-icon">💵</span>Log Income
+      </button>
+      <button class="add-type-btn" onclick="openExpenseFromPicker()">
+        <span class="atb-icon">🧾</span>Log Expense
+      </button>
+    </div>
+    <button class="cancel-btn" onclick="closeModal('add-type-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     INCOME MODALS
+══════════════════════════════ -->
+
+<!-- TUTORING SESSION -->
+<div class="modal-overlay" id="modal-tut-income">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="tut-income-title">Log Session</div>
+    <input type="hidden" id="tut-income-edit-id">
     <div class="form-group">
       <label class="form-label">Student Name</label>
       <input type="text" class="form-input" id="tut-student" placeholder="e.g. Alex Johnson">
@@ -674,17 +670,17 @@ body{
       <input type="text" class="form-input" id="tut-notes" placeholder="Optional">
     </div>
     <button class="submit-btn" onclick="saveSession()">Save Session</button>
-    <button class="delete-btn" id="tut-delete-btn" style="display:none;" onclick="deleteSession()">Delete Session</button>
-    <button class="submit-btn" style="background:transparent;color:var(--muted);margin-top:4px;" onclick="closeModal(\'tut-income-modal\')">Cancel</button>
+    <button class="delete-btn" id="tut-income-del" style="display:none" onclick="deleteSession()">Delete Session</button>
+    <button class="cancel-btn" onclick="closeModal('modal-tut-income')">Cancel</button>
   </div>
 </div>
 
-<!-- MUSIC EVENT MODAL -->
-<div class="modal-overlay" id="mus-income-modal">
+<!-- MUSIC EVENT -->
+<div class="modal-overlay" id="modal-mus-income">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="mus-income-modal-title">Log Event</div>
-    <input type="hidden" id="mus-event-edit-id">
+    <div class="modal-title" id="mus-income-title">Log Event</div>
+    <input type="hidden" id="mus-income-edit-id">
     <div class="form-group">
       <label class="form-label">Event Name</label>
       <input type="text" class="form-input" id="mus-event-name" placeholder="e.g. Friday Night Jazz">
@@ -696,22 +692,22 @@ body{
     <div class="form-group">
       <label class="form-label">Pay Type</label>
       <div class="radio-group">
-        <button class="radio-btn selected" id="mus-pay-flat" onclick="setMusPayType(\'flat\')">Flat Rate</button>
-        <button class="radio-btn" id="mus-pay-hourly" onclick="setMusPayType(\'hourly\')">Hourly</button>
+        <button class="radio-btn selected" id="mus-btn-flat" onclick="setMusPay('flat')">Flat Rate</button>
+        <button class="radio-btn" id="mus-btn-hourly" onclick="setMusPay('hourly')">Hourly</button>
       </div>
     </div>
-    <div class="form-group" id="mus-flat-group">
+    <div class="form-group" id="mus-flat-grp">
       <label class="form-label">Flat Rate ($)</label>
-      <input type="number" class="form-input" id="mus-flat-rate" placeholder="200.00" inputmode="decimal">
+      <input type="number" class="form-input" id="mus-flat" placeholder="200.00" inputmode="decimal">
     </div>
-    <div id="mus-hourly-group" style="display:none;">
+    <div id="mus-hourly-grp" style="display:none">
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Hourly Rate ($)</label>
           <input type="number" class="form-input" id="mus-hourly-rate" placeholder="50.00" inputmode="decimal">
         </div>
         <div class="form-group">
-          <label class="form-label">Hours Worked</label>
+          <label class="form-label">Hours</label>
           <input type="number" class="form-input" id="mus-hours" placeholder="3" inputmode="decimal">
         </div>
       </div>
@@ -733,17 +729,17 @@ body{
       <input type="text" class="form-input" id="mus-notes" placeholder="Optional">
     </div>
     <button class="submit-btn" onclick="saveEvent()">Save Event</button>
-    <button class="delete-btn" id="mus-delete-btn" style="display:none;" onclick="deleteEvent()">Delete Event</button>
-    <button class="submit-btn" style="background:transparent;color:var(--muted);margin-top:4px;" onclick="closeModal(\'mus-income-modal\')">Cancel</button>
+    <button class="delete-btn" id="mus-income-del" style="display:none" onclick="deleteEvent()">Delete Event</button>
+    <button class="cancel-btn" onclick="closeModal('modal-mus-income')">Cancel</button>
   </div>
 </div>
 
-<!-- DANCE CLASS MODAL -->
-<div class="modal-overlay" id="dan-income-modal">
+<!-- DANCE CLASS -->
+<div class="modal-overlay" id="modal-dan-income">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="dan-income-modal-title">Log Class</div>
-    <input type="hidden" id="dan-class-edit-id">
+    <div class="modal-title" id="dan-income-title">Log Class</div>
+    <input type="hidden" id="dan-income-edit-id">
     <div class="form-group">
       <label class="form-label">Date</label>
       <input type="date" class="form-input" id="dan-date">
@@ -775,29 +771,29 @@ body{
       <input type="text" class="form-input" id="dan-notes" placeholder="Optional">
     </div>
     <button class="submit-btn" onclick="saveClass()">Save Class</button>
-    <button class="delete-btn" id="dan-delete-btn" style="display:none;" onclick="deleteClass()">Delete Class</button>
-    <button class="submit-btn" style="background:transparent;color:var(--muted);margin-top:4px;" onclick="closeModal(\'dan-income-modal\')">Cancel</button>
+    <button class="delete-btn" id="dan-income-del" style="display:none" onclick="deleteClass()">Delete Class</button>
+    <button class="cancel-btn" onclick="closeModal('modal-dan-income')">Cancel</button>
   </div>
 </div>
 
-<!-- SKINCARE SALE MODAL -->
-<div class="modal-overlay" id="ski-income-modal">
+<!-- SKINCARE SALE -->
+<div class="modal-overlay" id="modal-ski-income">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="ski-income-modal-title">Log Product Sale</div>
-    <input type="hidden" id="ski-sale-edit-id">
+    <div class="modal-title" id="ski-income-title">Log Product Sale</div>
+    <input type="hidden" id="ski-income-edit-id">
     <div class="form-group">
       <label class="form-label">Date</label>
       <input type="date" class="form-input" id="ski-date">
     </div>
     <div class="form-group">
       <label class="form-label">Product Type</label>
-      <select class="form-select" id="ski-product" onchange="setSkincarePrice()">
+      <select class="form-select" id="ski-product" onchange="setSkiPrice()">
         <option value="">Select product...</option>
-        <option value="Soap" data-price="12">Soap — $12</option>
-        <option value="Hair Oil" data-price="22">Hair Oil — $22</option>
-        <option value="Lotion" data-price="18">Lotion — $18</option>
-        <option value="Facial Cleanser" data-price="28">Facial Cleanser — $28</option>
+        <option value="Soap" data-price="12">Soap — $12.00</option>
+        <option value="Hair Oil" data-price="22">Hair Oil — $22.00</option>
+        <option value="Lotion" data-price="18">Lotion — $18.00</option>
+        <option value="Facial Cleanser" data-price="28">Facial Cleanser — $28.00</option>
       </select>
     </div>
     <div class="form-row">
@@ -831,20 +827,20 @@ body{
       <input type="text" class="form-input" id="ski-notes" placeholder="Optional">
     </div>
     <button class="submit-btn" onclick="saveSale()">Save Sale</button>
-    <button class="delete-btn" id="ski-delete-btn" style="display:none;" onclick="deleteSale()">Delete Sale</button>
-    <button class="submit-btn" style="background:transparent;color:var(--muted);margin-top:4px;" onclick="closeModal(\'ski-income-modal\')">Cancel</button>
+    <button class="delete-btn" id="ski-income-del" style="display:none" onclick="deleteSale()">Delete Sale</button>
+    <button class="cancel-btn" onclick="closeModal('modal-ski-income')">Cancel</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     EXPENSE MODALS (one per business)
-══════════════════════════════════════ -->
+<!-- ══════════════════════════════
+     EXPENSE MODALS
+══════════════════════════════ -->
 
 <!-- TUTORING EXPENSE -->
-<div class="modal-overlay" id="tut-expense-modal">
+<div class="modal-overlay" id="modal-tut-expense">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="tut-exp-modal-title">Add Expense</div>
+    <div class="modal-title" id="tut-exp-title">Add Expense</div>
     <input type="hidden" id="tut-exp-edit-id">
     <div class="form-group">
       <label class="form-label">Date</label>
@@ -860,7 +856,7 @@ body{
     </div>
     <div class="form-group">
       <label class="form-label">Category</label>
-      <select class="form-select" id="tut-exp-category">
+      <select class="form-select" id="tut-exp-cat">
         <option value="">Select...</option>
         <option>Supplies &amp; Materials</option>
         <option>Books &amp; Curriculum</option>
@@ -876,7 +872,7 @@ body{
     </div>
     <div class="form-group">
       <label class="form-label">Payment Method</label>
-      <select class="form-select" id="tut-exp-payment">
+      <select class="form-select" id="tut-exp-pay">
         <option value="">Select...</option>
         <option>Business Card</option>
         <option>Personal Card</option>
@@ -890,17 +886,17 @@ body{
       <label class="form-label">Notes</label>
       <input type="text" class="form-input" id="tut-exp-notes" placeholder="Optional">
     </div>
-    <button class="submit-btn" onclick="saveExpense(\'tutoring\')">Save Expense</button>
-    <button class="delete-btn" id="tut-exp-delete-btn" style="display:none;" onclick="deleteExpense(\'tutoring\')">Delete Expense</button>
-    <button class="submit-btn" style="background:transparent;color:var(--muted);margin-top:4px;" onclick="closeModal(\'tut-expense-modal\')">Cancel</button>
+    <button class="submit-btn" onclick="saveExpense('tutoring')">Save Expense</button>
+    <button class="delete-btn" id="tut-exp-del" style="display:none" onclick="deleteExpense('tutoring')">Delete Expense</button>
+    <button class="cancel-btn" onclick="closeModal('modal-tut-expense')">Cancel</button>
   </div>
 </div>
 
 <!-- MUSIC EXPENSE -->
-<div class="modal-overlay" id="mus-expense-modal">
+<div class="modal-overlay" id="modal-mus-expense">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="mus-exp-modal-title">Add Expense</div>
+    <div class="modal-title" id="mus-exp-title">Add Expense</div>
     <input type="hidden" id="mus-exp-edit-id">
     <div class="form-group">
       <label class="form-label">Date</label>
@@ -908,7 +904,7 @@ body{
     </div>
     <div class="form-group">
       <label class="form-label">Vendor</label>
-      <input type="text" class="form-input" id="mus-exp-vendor" placeholder="e.g. Guitar Center, Amazon">
+      <input type="text" class="form-input" id="mus-exp-vendor" placeholder="e.g. Guitar Center">
     </div>
     <div class="form-group">
       <label class="form-label">Amount ($)</label>
@@ -916,7 +912,7 @@ body{
     </div>
     <div class="form-group">
       <label class="form-label">Category</label>
-      <select class="form-select" id="mus-exp-category">
+      <select class="form-select" id="mus-exp-cat">
         <option value="">Select...</option>
         <option>Instruments &amp; Gear</option>
         <option>Repairs &amp; Maintenance</option>
@@ -932,7 +928,7 @@ body{
     </div>
     <div class="form-group">
       <label class="form-label">Payment Method</label>
-      <select class="form-select" id="mus-exp-payment">
+      <select class="form-select" id="mus-exp-pay">
         <option value="">Select...</option>
         <option>Business Card</option>
         <option>Personal Card</option>
@@ -946,17 +942,17 @@ body{
       <label class="form-label">Notes</label>
       <input type="text" class="form-input" id="mus-exp-notes" placeholder="Optional">
     </div>
-    <button class="submit-btn" onclick="saveExpense(\'music\')">Save Expense</button>
-    <button class="delete-btn" id="mus-exp-delete-btn" style="display:none;" onclick="deleteExpense(\'music\')">Delete Expense</button>
-    <button class="submit-btn" style="background:transparent;color:var(--muted);margin-top:4px;" onclick="closeModal(\'mus-expense-modal\')">Cancel</button>
+    <button class="submit-btn" onclick="saveExpense('music')">Save Expense</button>
+    <button class="delete-btn" id="mus-exp-del" style="display:none" onclick="deleteExpense('music')">Delete Expense</button>
+    <button class="cancel-btn" onclick="closeModal('modal-mus-expense')">Cancel</button>
   </div>
 </div>
 
 <!-- DANCE EXPENSE -->
-<div class="modal-overlay" id="dan-expense-modal">
+<div class="modal-overlay" id="modal-dan-expense">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="dan-exp-modal-title">Add Expense</div>
+    <div class="modal-title" id="dan-exp-title">Add Expense</div>
     <input type="hidden" id="dan-exp-edit-id">
     <div class="form-group">
       <label class="form-label">Date</label>
@@ -972,7 +968,7 @@ body{
     </div>
     <div class="form-group">
       <label class="form-label">Category</label>
-      <select class="form-select" id="dan-exp-category">
+      <select class="form-select" id="dan-exp-cat">
         <option value="">Select...</option>
         <option>Costumes &amp; Attire</option>
         <option>Music &amp; Licensing</option>
@@ -988,7 +984,7 @@ body{
     </div>
     <div class="form-group">
       <label class="form-label">Payment Method</label>
-      <select class="form-select" id="dan-exp-payment">
+      <select class="form-select" id="dan-exp-pay">
         <option value="">Select...</option>
         <option>Business Card</option>
         <option>Personal Card</option>
@@ -1002,17 +998,17 @@ body{
       <label class="form-label">Notes</label>
       <input type="text" class="form-input" id="dan-exp-notes" placeholder="Optional">
     </div>
-    <button class="submit-btn" onclick="saveExpense(\'dance\')">Save Expense</button>
-    <button class="delete-btn" id="dan-exp-delete-btn" style="display:none;" onclick="deleteExpense(\'dance\')">Delete Expense</button>
-    <button class="submit-btn" style="background:transparent;color:var(--muted);margin-top:4px;" onclick="closeModal(\'dan-expense-modal\')">Cancel</button>
+    <button class="submit-btn" onclick="saveExpense('dance')">Save Expense</button>
+    <button class="delete-btn" id="dan-exp-del" style="display:none" onclick="deleteExpense('dance')">Delete Expense</button>
+    <button class="cancel-btn" onclick="closeModal('modal-dan-expense')">Cancel</button>
   </div>
 </div>
 
 <!-- SKINCARE EXPENSE -->
-<div class="modal-overlay" id="ski-expense-modal">
+<div class="modal-overlay" id="modal-ski-expense">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="ski-exp-modal-title">Add Expense</div>
+    <div class="modal-title" id="ski-exp-title">Add Expense</div>
     <input type="hidden" id="ski-exp-edit-id">
     <div class="form-group">
       <label class="form-label">Date</label>
@@ -1028,7 +1024,7 @@ body{
     </div>
     <div class="form-group">
       <label class="form-label">Category</label>
-      <select class="form-select" id="ski-exp-category">
+      <select class="form-select" id="ski-exp-cat">
         <option value="">Select...</option>
         <option>Raw Ingredients</option>
         <option>Packaging &amp; Labels</option>
@@ -1044,7 +1040,7 @@ body{
     </div>
     <div class="form-group">
       <label class="form-label">Payment Method</label>
-      <select class="form-select" id="ski-exp-payment">
+      <select class="form-select" id="ski-exp-pay">
         <option value="">Select...</option>
         <option>Business Card</option>
         <option>Personal Card</option>
@@ -1058,29 +1054,26 @@ body{
       <label class="form-label">Notes</label>
       <input type="text" class="form-input" id="ski-exp-notes" placeholder="Optional">
     </div>
-    <button class="submit-btn" onclick="saveExpense(\'skincare\')">Save Expense</button>
-    <button class="delete-btn" id="ski-exp-delete-btn" style="display:none;" onclick="deleteExpense(\'skincare\')">Delete Expense</button>
-    <button class="submit-btn" style="background:transparent;color:var(--muted);margin-top:4px;" onclick="closeModal(\'ski-expense-modal\')">Cancel</button>
+    <button class="submit-btn" onclick="saveExpense('skincare')">Save Expense</button>
+    <button class="delete-btn" id="ski-exp-del" style="display:none" onclick="deleteExpense('skincare')">Delete Expense</button>
+    <button class="cancel-btn" onclick="closeModal('modal-ski-expense')">Cancel</button>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════
-//  SUPABASE CONFIG
-// ══════════════════════════════════════
-const SB_URL = 'https://qoswwueqmfjmlfkkhwtf.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvc3d3dWVxbWZqbWxma2tod3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNDY3NTgsImV4cCI6MjA5MjcyMjc1OH0.HQfRqmiooiFcc2bpmzZNfna6AkbAwndUV-53FxqC5DU';
+// ═══════════════════════════════════
+//  SUPABASE
+// ═══════════════════════════════════
+var SB_URL = 'https://qoswwueqmfjmlfkkhwtf.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvc3d3dWVxbWZqbWxma2tod3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNDY3NTgsImV4cCI6MjA5MjcyMjc1OH0.HQfRqmiooiFcc2bpmzZNfna6AkbAwndUV-53FxqC5DU';
+
+function sbHeaders() {
+  return { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+}
 
 async function sbGet(table, params) {
   try {
-    const q = params ? '?' + params : '';
-    const r = await fetch(SB_URL + '/rest/v1/' + table + q, {
-      headers: {
-        'apikey': SB_KEY,
-        'Authorization': 'Bearer ' + SB_KEY,
-        'Content-Type': 'application/json'
-      }
-    });
+    var r = await fetch(SB_URL + '/rest/v1/' + table + (params ? '?' + params : ''), { headers: sbHeaders() });
     if (!r.ok) return [];
     return await r.json();
   } catch(e) { return []; }
@@ -1088,89 +1081,60 @@ async function sbGet(table, params) {
 
 async function sbInsert(table, data) {
   try {
-    const r = await fetch(SB_URL + '/rest/v1/' + table, {
+    var r = await fetch(SB_URL + '/rest/v1/' + table, {
       method: 'POST',
-      headers: {
-        'apikey': SB_KEY,
-        'Authorization': 'Bearer ' + SB_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      },
+      headers: Object.assign({}, sbHeaders(), { 'Prefer': 'return=representation' }),
       body: JSON.stringify(data)
     });
     if (!r.ok) return null;
-    const d = await r.json();
+    var d = await r.json();
     return Array.isArray(d) ? d[0] : d;
   } catch(e) { return null; }
 }
 
 async function sbUpdate(table, id, data) {
   try {
-    const r = await fetch(SB_URL + '/rest/v1/' + table + '?id=eq.' + id, {
+    var r = await fetch(SB_URL + '/rest/v1/' + table + '?id=eq.' + id, {
       method: 'PATCH',
-      headers: {
-        'apikey': SB_KEY,
-        'Authorization': 'Bearer ' + SB_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      },
+      headers: Object.assign({}, sbHeaders(), { 'Prefer': 'return=representation' }),
       body: JSON.stringify(data)
     });
     if (!r.ok) return null;
-    const d = await r.json();
+    var d = await r.json();
     return Array.isArray(d) ? d[0] : d;
   } catch(e) { return null; }
 }
 
 async function sbDelete(table, id) {
   try {
-    const r = await fetch(SB_URL + '/rest/v1/' + table + '?id=eq.' + id, {
-      method: 'DELETE',
-      headers: {
-        'apikey': SB_KEY,
-        'Authorization': 'Bearer ' + SB_KEY
-      }
+    var r = await fetch(SB_URL + '/rest/v1/' + table + '?id=eq.' + id, {
+      method: 'DELETE', headers: sbHeaders()
     });
     return r.ok;
   } catch(e) { return false; }
 }
 
-// ══════════════════════════════════════
+// ═══════════════════════════════════
 //  STATE
-// ══════════════════════════════════════
-let period = 'month';
-let allSessions = [], allEvents = [], allClasses = [], allSales = [], allExpenses = [], allYTD = [];
+// ═══════════════════════════════════
+var period = 'month';
+var activeBiz = 'tutoring';
+var activePage = 'earnings';
+var addPickerBiz = 'tutoring';
+var musPayType = 'flat';
 
-// ══════════════════════════════════════
-//  PERIOD FILTER
-// ══════════════════════════════════════
-function setPeriod(p, btn) {
-  period = p;
-  document.querySelectorAll('.period-btn').forEach(function(b) { b.classList.remove('active'); });
-  btn.classList.add('active');
-  renderAll();
-}
+var allSessions = [], allEvents = [], allClasses = [], allSales = [], allExpenses = [], allYTD = [];
 
-function inPeriod(dateStr) {
-  if (period === 'all') return true;
-  if (!dateStr) return true;
-  var now = new Date();
-  var d = new Date(dateStr + 'T12:00:00');
-  if (period === 'month') {
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-  }
-  if (period === 'year') {
-    return d.getFullYear() === now.getFullYear();
-  }
-  return true;
-}
+var BIZ_NAMES = { tutoring: 'Tutoring', music: 'Music Gigs', dance: 'Dance Classes', skincare: 'Skincare Line' };
+var BIZ_EMOJI = { tutoring: '📚', music: '🎵', dance: '💃', skincare: '✨' };
+var INCOME_LABELS = { tutoring: 'Sessions', music: 'Events', dance: 'Classes', skincare: 'Product Sales' };
 
-// ══════════════════════════════════════
-//  LOAD ALL DATA
-// ══════════════════════════════════════
+// ═══════════════════════════════════
+//  LOAD
+// ═══════════════════════════════════
 async function loadAll() {
   try {
-    var results = await Promise.all([
+    var res = await Promise.all([
       sbGet('tutoring_sessions', 'order=date.desc').catch(function() { return []; }),
       sbGet('music_events', 'order=date.desc').catch(function() { return []; }),
       sbGet('dance_classes', 'order=date.desc').catch(function() { return []; }),
@@ -1178,18 +1142,15 @@ async function loadAll() {
       sbGet('expenses', 'order=date.desc').catch(function() { return []; }),
       sbGet('income_ytd', 'order=updated_at.desc').catch(function() { return []; })
     ]);
-    allSessions  = Array.isArray(results[0]) ? results[0] : [];
-    allEvents    = Array.isArray(results[1]) ? results[1] : [];
-    allClasses   = Array.isArray(results[2]) ? results[2] : [];
-    allSales     = Array.isArray(results[3]) ? results[3] : [];
-    allExpenses  = Array.isArray(results[4]) ? results[4] : [];
-    allYTD       = Array.isArray(results[5]) ? results[5] : [];
-    loadYTDInputs();
+    allSessions = Array.isArray(res[0]) ? res[0] : [];
+    allEvents   = Array.isArray(res[1]) ? res[1] : [];
+    allClasses  = Array.isArray(res[2]) ? res[2] : [];
+    allSales    = Array.isArray(res[3]) ? res[3] : [];
+    allExpenses = Array.isArray(res[4]) ? res[4] : [];
+    allYTD      = Array.isArray(res[5]) ? res[5] : [];
     renderAll();
     showApp();
-  } catch(e) {
-    showApp();
-  }
+  } catch(e) { showApp(); }
 }
 
 function showApp() {
@@ -1197,264 +1158,269 @@ function showApp() {
   if (el) el.style.display = 'none';
 }
 
-// ══════════════════════════════════════
-//  RENDER ALL
-// ══════════════════════════════════════
-function renderAll() {
-  try { renderEarnings(); } catch(e) {}
-  try { renderTutoring(); } catch(e) {}
-  try { renderMusic(); } catch(e) {}
-  try { renderDance(); } catch(e) {}
-  try { renderSkincare(); } catch(e) {}
-}
-
+// ═══════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════
 function fmt(n) {
-  var num = parseFloat(n) || 0;
-  return '$' + num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  var v = parseFloat(n) || 0;
+  return '$' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
-
 function fmtDate(s) {
   if (!s) return '';
   var d = new Date(s + 'T12:00:00');
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
+function inPeriod(ds) {
+  if (period === 'all' || !ds) return true;
+  var now = new Date();
+  var d = new Date(ds + 'T12:00:00');
+  if (period === 'month') return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  if (period === 'year') return d.getFullYear() === now.getFullYear();
+  return true;
+}
+function incomeFor(biz, filtered) {
+  if (biz === 'tutoring') return (filtered ? allSessions.filter(function(x) { return inPeriod(x.date); }) : allSessions).reduce(function(s,x) { return s + (parseFloat(x.rate_per_hour)||0)*(parseFloat(x.hours_worked)||0); }, 0);
+  if (biz === 'music') return (filtered ? allEvents.filter(function(x) { return inPeriod(x.date); }) : allEvents).reduce(function(s,x) { return s + (x.pay_type === 'flat' ? (parseFloat(x.flat_rate)||0) : (parseFloat(x.hourly_rate)||0)*(parseFloat(x.hours_worked)||0)); }, 0);
+  if (biz === 'dance') return (filtered ? allClasses.filter(function(x) { return inPeriod(x.date); }) : allClasses).reduce(function(s,x) { return s + (parseFloat(x.price_per_attendee)||0)*(parseInt(x.num_attendees)||0); }, 0);
+  if (biz === 'skincare') return (filtered ? allSales.filter(function(x) { return inPeriod(x.date); }) : allSales).reduce(function(s,x) { return s + (parseFloat(x.price)||0)*(parseInt(x.quantity)||0); }, 0);
+  return 0;
+}
+function expensesFor(biz, filtered) {
+  var list = allExpenses.filter(function(x) { return x.business === biz && (!filtered || inPeriod(x.date)); });
+  return list.reduce(function(s,x) { return s + (parseFloat(x.amount)||0); }, 0);
+}
+function eventEarning(ev) {
+  return ev.pay_type === 'flat' ? (parseFloat(ev.flat_rate)||0) : (parseFloat(ev.hourly_rate)||0)*(parseFloat(ev.hours_worked)||0);
+}
 
-// ══════════════════════════════════════
-//  EARNINGS VIEW
-// ══════════════════════════════════════
+// ═══════════════════════════════════
+//  RENDER ALL
+// ═══════════════════════════════════
+function renderAll() {
+  try { renderEarnings(); } catch(e) {}
+  try { renderOverview(); } catch(e) {}
+}
+
+// ═══════════════════════════════════
+//  EARNINGS
+// ═══════════════════════════════════
 function renderEarnings() {
-  var tutInc  = allSessions.filter(function(x) { return inPeriod(x.date); }).reduce(function(s,x) { return s + (parseFloat(x.rate_per_hour)||0)*(parseFloat(x.hours_worked)||0); }, 0);
-  var tutExp  = allExpenses.filter(function(x) { return x.business==='tutoring' && inPeriod(x.date); }).reduce(function(s,x) { return s + (parseFloat(x.amount)||0); }, 0);
-  var musInc  = allEvents.filter(function(x) { return inPeriod(x.date); }).reduce(function(s,x) {
-    if (x.pay_type === 'flat') return s + (parseFloat(x.flat_rate)||0);
-    return s + (parseFloat(x.hourly_rate)||0)*(parseFloat(x.hours_worked)||0);
-  }, 0);
-  var musExp  = allExpenses.filter(function(x) { return x.business==='music' && inPeriod(x.date); }).reduce(function(s,x) { return s + (parseFloat(x.amount)||0); }, 0);
-  var danInc  = allClasses.filter(function(x) { return inPeriod(x.date); }).reduce(function(s,x) { return s + (parseFloat(x.price_per_attendee)||0)*(parseInt(x.num_attendees)||0); }, 0);
-  var danExp  = allExpenses.filter(function(x) { return x.business==='dance' && inPeriod(x.date); }).reduce(function(s,x) { return s + (parseFloat(x.amount)||0); }, 0);
-  var skiInc  = allSales.filter(function(x) { return inPeriod(x.date); }).reduce(function(s,x) { return s + (parseFloat(x.price)||0)*(parseInt(x.quantity)||0); }, 0);
-  var skiExp  = allExpenses.filter(function(x) { return x.business==='skincare' && inPeriod(x.date); }).reduce(function(s,x) { return s + (parseFloat(x.amount)||0); }, 0);
-
-  var totalInc = tutInc + musInc + danInc + skiInc;
-  var totalExp = tutExp + musExp + danExp + skiExp;
-  var totalNet = totalInc - totalExp;
-
+  var bizList = ['tutoring','music','dance','skincare'];
+  var totalInc = 0, totalExp = 0;
+  bizList.forEach(function(b) { totalInc += incomeFor(b, true); totalExp += expensesFor(b, true); });
+  var net = totalInc - totalExp;
   var netEl = document.getElementById('total-net');
-  netEl.textContent = fmt(totalNet);
-  netEl.className = 'earnings-hero-amount ' + (totalNet >= 0 ? '' : 'val-loss');
-
+  netEl.textContent = fmt(net);
+  netEl.style.color = net >= 0 ? 'var(--green)' : 'var(--red)';
   document.getElementById('total-sub').textContent = fmt(totalInc) + ' income · ' + fmt(totalExp) + ' expenses';
-
   var labels = { month: 'This month', year: 'This year', all: 'All time' };
-  document.getElementById('earnings-period-label').textContent = (labels[period] || 'This month') + ' across all businesses';
-
-  var bizData = [
-    { name: 'Tutoring', emoji: '📚', inc: tutInc, exp: tutExp },
-    { name: 'Music Gigs', emoji: '🎵', inc: musInc, exp: musExp },
-    { name: 'Dance Classes', emoji: '💃', inc: danInc, exp: danExp },
-    { name: 'Skincare Line', emoji: '✨', inc: skiInc, exp: skiExp }
-  ];
-
+  document.getElementById('earnings-period-label').textContent = (labels[period]||'This month') + ' across all businesses';
   var html = '';
-  bizData.forEach(function(b) {
-    var net = b.inc - b.exp;
-    var netClass = net >= 0 ? 'val-profit' : 'val-loss';
-    html += '<div class="biz-summary-card">';
-    html += '<div class="biz-summary-header"><div class="biz-summary-name"><span class="biz-emoji">' + b.emoji + '</span>' + b.name + '</div></div>';
-    html += '<div class="biz-summary-rows">';
-    html += '<div class="biz-row"><span class="biz-row-label">Income</span><span class="biz-row-val val-income">' + fmt(b.inc) + '</span></div>';
-    html += '<div class="biz-row"><span class="biz-row-label">Expenses</span><span class="biz-row-val val-expense">' + fmt(b.exp) + '</span></div>';
+  bizList.forEach(function(b) {
+    var inc = incomeFor(b, true), exp = expensesFor(b, true), n = inc - exp;
+    html += '<div class="biz-earn-card">';
+    html += '<div class="biz-earn-name">' + BIZ_EMOJI[b] + ' ' + BIZ_NAMES[b] + '</div>';
+    html += '<div class="biz-row"><span class="biz-row-lbl">Income</span><span class="c-income" style="font-weight:600">' + fmt(inc) + '</span></div>';
+    html += '<div class="biz-row"><span class="biz-row-lbl">Expenses</span><span class="c-expense" style="font-weight:600">' + fmt(exp) + '</span></div>';
     html += '<hr class="biz-divider">';
-    html += '<div class="biz-row"><span class="biz-row-label">Net</span><span class="biz-row-val ' + netClass + '">' + fmt(net) + '</span></div>';
-    html += '</div></div>';
+    html += '<div class="biz-row"><span class="biz-row-lbl">Net</span><span class="' + (n >= 0 ? 'c-profit' : 'c-loss') + '" style="font-weight:700">' + fmt(n) + '</span></div>';
+    html += '</div>';
   });
   document.getElementById('earnings-biz-list').innerHTML = html;
 }
 
-// ══════════════════════════════════════
-//  TUTORING
-// ══════════════════════════════════════
-function renderTutoring() {
-  var sessions = allSessions.filter(function(x) { return inPeriod(x.date); });
-  var expenses = allExpenses.filter(function(x) { return x.business==='tutoring' && inPeriod(x.date); });
-  var inc = sessions.reduce(function(s,x) { return s + (parseFloat(x.rate_per_hour)||0)*(parseFloat(x.hours_worked)||0); }, 0);
-  var exp = expenses.reduce(function(s,x) { return s + (parseFloat(x.amount)||0); }, 0);
+// ═══════════════════════════════════
+//  OVERVIEW (per active business)
+// ═══════════════════════════════════
+function renderOverview() {
+  var biz = activeBiz;
+  var inc = incomeFor(biz, true);
+  var exp = expensesFor(biz, true);
   var net = inc - exp;
+  var profClass = net >= 0 ? 'c-profit' : 'c-loss';
+  var incomeLabel = INCOME_LABELS[biz];
 
-  document.getElementById('tut-income').textContent = fmt(inc);
-  document.getElementById('tut-expenses').textContent = fmt(exp);
-  var profEl = document.getElementById('tut-profit');
-  profEl.textContent = fmt(net);
-  profEl.className = 'stat-value ' + (net >= 0 ? 'profit' : 'loss');
+  var html = '';
+  html += '<div class="page-title">' + BIZ_EMOJI[biz] + ' ' + BIZ_NAMES[biz] + '</div>';
+  html += '<div class="page-sub">Overview · ' + (period === 'month' ? 'This Month' : period === 'year' ? 'This Year' : 'All Time') + '</div>';
 
-  var sHtml = sessions.length === 0 ? '<div class="empty-state"><div class="empty-icon">📚</div>No sessions yet</div>' : '';
-  sessions.forEach(function(s) {
-    var earn = (parseFloat(s.rate_per_hour)||0)*(parseFloat(s.hours_worked)||0);
-    sHtml += '<div class="log-entry" onclick="editSession(\'' + s.id + '\')">';
-    sHtml += '<div class="log-entry-left"><div class="log-entry-title">' + (s.student_name||'Student') + '</div>';
-    sHtml += '<div class="log-entry-meta">' + fmtDate(s.date) + ' · ' + (s.hours_worked||0) + 'h @ ' + fmt(s.rate_per_hour) + '/hr</div>';
-    if (s.notes) sHtml += '<span class="cat-pill">' + s.notes + '</span>';
-    sHtml += '</div><div class="log-entry-right"><div class="log-entry-amount amount-income">' + fmt(earn) + '</div>';
-    sHtml += '<div class="log-entry-payment">' + (s.payment_method||'') + '</div></div></div>';
-  });
-  document.getElementById('tut-sessions-list').innerHTML = sHtml;
+  // Stats
+  html += '<div class="stat-grid">';
+  html += '<div class="stat-card"><div class="stat-label">' + incomeLabel + '</div><div class="stat-value c-income">' + fmt(inc) + '</div></div>';
+  html += '<div class="stat-card"><div class="stat-label">Expenses</div><div class="stat-value c-expense">' + fmt(exp) + '</div></div>';
+  html += '<div class="stat-card full"><div class="stat-label">Net Profit</div><div class="stat-value ' + profClass + '">' + fmt(net) + '</div></div>';
+  html += '</div>';
 
-  var eHtml = expenses.length === 0 ? '<div class="empty-state"><div class="empty-icon">🧾</div>No expenses yet</div>' : '';
-  expenses.forEach(function(e) {
-    eHtml += '<div class="log-entry" onclick="editExpense(\'tutoring\',\'' + e.id + '\')">';
-    eHtml += '<div class="log-entry-left"><div class="log-entry-title">' + (e.vendor||'Expense') + '</div>';
-    eHtml += '<div class="log-entry-meta">' + fmtDate(e.date) + '</div>';
-    if (e.category) eHtml += '<span class="cat-pill">' + e.category + '</span>';
-    eHtml += '</div><div class="log-entry-right"><div class="log-entry-amount amount-expense">' + fmt(e.amount) + '</div>';
-    eHtml += '<div class="log-entry-payment">' + (e.payment_method||'') + '</div></div></div>';
-  });
-  document.getElementById('tut-expenses-list').innerHTML = eHtml;
+  // YTD card for tutoring and skincare
+  if (biz === 'tutoring' || biz === 'skincare') {
+    var ytdRec = allYTD.find(function(y) { return y.business === biz; }) || {};
+    html += '<div class="ytd-card">';
+    html += '<div class="stat-label">Income YTD (Manual)</div>';
+    html += '<div class="ytd-row">';
+    html += '<span class="ytd-lbl">$</span>';
+    html += '<input type="number" class="ytd-input" id="ytd-amt-' + biz + '" value="' + (ytdRec.amount||'') + '" placeholder="0.00" inputmode="decimal">';
+    html += '<span class="ytd-lbl">as of</span>';
+    html += '<input type="date" class="ytd-input" id="ytd-date-' + biz + '" value="' + (ytdRec.as_of_date||'') + '" style="max-width:150px">';
+    html += '<button class="ytd-save" onclick="saveYTD(\'' + biz + '\')">Save</button>';
+    html += '</div></div>';
+  }
+
+  // Income section
+  html += '<div class="sec-hdr">';
+  html += '<div class="sec-title">' + incomeLabel + '</div>';
+  html += '<button class="add-btn" onclick="openIncomeModal(\'' + biz + '\')">+ Add</button>';
+  html += '</div>';
+  html += buildIncomeList(biz);
+
+  // Expenses section
+  html += '<div class="sec-hdr">';
+  html += '<div class="sec-title">Expenses</div>';
+  html += '<button class="add-btn" onclick="openExpenseModal(\'' + biz + '\')">+ Add</button>';
+  html += '</div>';
+  html += buildExpenseList(biz);
+
+  document.getElementById('overview-content').innerHTML = html;
 }
 
-// ══════════════════════════════════════
-//  MUSIC
-// ══════════════════════════════════════
-function renderMusic() {
-  var events = allEvents.filter(function(x) { return inPeriod(x.date); });
-  var expenses = allExpenses.filter(function(x) { return x.business==='music' && inPeriod(x.date); });
-  var inc = events.reduce(function(s,x) {
-    if (x.pay_type === 'flat') return s + (parseFloat(x.flat_rate)||0);
-    return s + (parseFloat(x.hourly_rate)||0)*(parseFloat(x.hours_worked)||0);
-  }, 0);
-  var exp = expenses.reduce(function(s,x) { return s + (parseFloat(x.amount)||0); }, 0);
-  var net = inc - exp;
-
-  document.getElementById('mus-income').textContent = fmt(inc);
-  document.getElementById('mus-expenses').textContent = fmt(exp);
-  var profEl = document.getElementById('mus-profit');
-  profEl.textContent = fmt(net);
-  profEl.className = 'stat-value ' + (net >= 0 ? 'profit' : 'loss');
-
-  var eHtml = events.length === 0 ? '<div class="empty-state"><div class="empty-icon">🎵</div>No events yet</div>' : '';
-  events.forEach(function(ev) {
-    var earn = ev.pay_type === 'flat' ? (parseFloat(ev.flat_rate)||0) : (parseFloat(ev.hourly_rate)||0)*(parseFloat(ev.hours_worked)||0);
-    eHtml += '<div class="log-entry" onclick="editEvent(\'' + ev.id + '\')">';
-    eHtml += '<div class="log-entry-left"><div class="log-entry-title">' + (ev.event_name||'Event') + '</div>';
-    eHtml += '<div class="log-entry-meta">' + fmtDate(ev.date) + ' · ' + (ev.pay_type === 'flat' ? 'Flat Rate' : (ev.hours_worked||0) + 'h @ ' + fmt(ev.hourly_rate) + '/hr') + '</div>';
-    if (ev.notes) eHtml += '<span class="cat-pill">' + ev.notes + '</span>';
-    eHtml += '</div><div class="log-entry-right"><div class="log-entry-amount amount-income">' + fmt(earn) + '</div>';
-    eHtml += '<div class="log-entry-payment">' + (ev.payment_method||'') + '</div></div></div>';
-  });
-  document.getElementById('mus-events-list').innerHTML = eHtml;
-
-  var xHtml = expenses.length === 0 ? '<div class="empty-state"><div class="empty-icon">🧾</div>No expenses yet</div>' : '';
-  expenses.forEach(function(e) {
-    xHtml += '<div class="log-entry" onclick="editExpense(\'music\',\'' + e.id + '\')">';
-    xHtml += '<div class="log-entry-left"><div class="log-entry-title">' + (e.vendor||'Expense') + '</div>';
-    xHtml += '<div class="log-entry-meta">' + fmtDate(e.date) + '</div>';
-    if (e.category) xHtml += '<span class="cat-pill">' + e.category + '</span>';
-    xHtml += '</div><div class="log-entry-right"><div class="log-entry-amount amount-expense">' + fmt(e.amount) + '</div>';
-    xHtml += '<div class="log-entry-payment">' + (e.payment_method||'') + '</div></div></div>';
-  });
-  document.getElementById('mus-expenses-list').innerHTML = xHtml;
+function buildIncomeList(biz) {
+  var items = [];
+  if (biz === 'tutoring') {
+    items = allSessions.filter(function(x) { return inPeriod(x.date); });
+    if (!items.length) return '<div class="empty-state"><div class="empty-icon">📚</div>No sessions yet. Tap + Add to log one.</div>';
+    return items.map(function(s) {
+      var earn = (parseFloat(s.rate_per_hour)||0)*(parseFloat(s.hours_worked)||0);
+      return '<div class="log-entry" onclick="editSession(\'' + s.id + '\')">' +
+        '<div class="le-left"><div class="le-title">' + (s.student_name||'Student') + '</div>' +
+        '<div class="le-meta">' + fmtDate(s.date) + ' · ' + (s.hours_worked||0) + 'h @ ' + fmt(s.rate_per_hour) + '/hr</div>' +
+        (s.notes ? '<span class="cat-pill">' + s.notes + '</span>' : '') + '</div>' +
+        '<div class="le-right"><div class="le-amount c-income">' + fmt(earn) + '</div>' +
+        '<div class="le-pay">' + (s.payment_method||'') + '</div></div></div>';
+    }).join('');
+  }
+  if (biz === 'music') {
+    items = allEvents.filter(function(x) { return inPeriod(x.date); });
+    if (!items.length) return '<div class="empty-state"><div class="empty-icon">🎵</div>No events yet. Tap + Add to log one.</div>';
+    return items.map(function(ev) {
+      var earn = eventEarning(ev);
+      return '<div class="log-entry" onclick="editEvent(\'' + ev.id + '\')">' +
+        '<div class="le-left"><div class="le-title">' + (ev.event_name||'Event') + '</div>' +
+        '<div class="le-meta">' + fmtDate(ev.date) + ' · ' + (ev.pay_type === 'flat' ? 'Flat Rate' : (ev.hours_worked||0) + 'h @ ' + fmt(ev.hourly_rate) + '/hr') + '</div>' +
+        (ev.notes ? '<span class="cat-pill">' + ev.notes + '</span>' : '') + '</div>' +
+        '<div class="le-right"><div class="le-amount c-income">' + fmt(earn) + '</div>' +
+        '<div class="le-pay">' + (ev.payment_method||'') + '</div></div></div>';
+    }).join('');
+  }
+  if (biz === 'dance') {
+    items = allClasses.filter(function(x) { return inPeriod(x.date); });
+    if (!items.length) return '<div class="empty-state"><div class="empty-icon">💃</div>No classes yet. Tap + Add to log one.</div>';
+    return items.map(function(c) {
+      var earn = (parseFloat(c.price_per_attendee)||0)*(parseInt(c.num_attendees)||0);
+      return '<div class="log-entry" onclick="editClass(\'' + c.id + '\')">' +
+        '<div class="le-left"><div class="le-title">Dance Class</div>' +
+        '<div class="le-meta">' + fmtDate(c.date) + ' · ' + (c.num_attendees||0) + ' attendees @ ' + fmt(c.price_per_attendee) + ' each</div>' +
+        (c.notes ? '<span class="cat-pill">' + c.notes + '</span>' : '') + '</div>' +
+        '<div class="le-right"><div class="le-amount c-income">' + fmt(earn) + '</div>' +
+        '<div class="le-pay">' + (c.payment_method||'') + '</div></div></div>';
+    }).join('');
+  }
+  if (biz === 'skincare') {
+    items = allSales.filter(function(x) { return inPeriod(x.date); });
+    if (!items.length) return '<div class="empty-state"><div class="empty-icon">✨</div>No sales yet. Tap + Add to log one.</div>';
+    return items.map(function(s) {
+      var earn = (parseFloat(s.price)||0)*(parseInt(s.quantity)||0);
+      return '<div class="log-entry" onclick="editSale(\'' + s.id + '\')">' +
+        '<div class="le-left"><div class="le-title">' + (s.product_type||'Product') + '</div>' +
+        '<div class="le-meta">' + fmtDate(s.date) + ' · Qty: ' + (s.quantity||1) + (s.marketplace ? ' · ' + s.marketplace : '') + '</div>' +
+        '<span class="cat-pill">' + (s.product_type||'') + '</span></div>' +
+        '<div class="le-right"><div class="le-amount c-income">' + fmt(earn) + '</div>' +
+        '<div class="le-pay">' + (s.payment_method||'') + '</div></div></div>';
+    }).join('');
+  }
+  return '';
 }
 
-// ══════════════════════════════════════
-//  DANCE
-// ══════════════════════════════════════
-function renderDance() {
-  var classes = allClasses.filter(function(x) { return inPeriod(x.date); });
-  var expenses = allExpenses.filter(function(x) { return x.business==='dance' && inPeriod(x.date); });
-  var inc = classes.reduce(function(s,x) { return s + (parseFloat(x.price_per_attendee)||0)*(parseInt(x.num_attendees)||0); }, 0);
-  var exp = expenses.reduce(function(s,x) { return s + (parseFloat(x.amount)||0); }, 0);
-  var net = inc - exp;
-
-  document.getElementById('dan-income').textContent = fmt(inc);
-  document.getElementById('dan-expenses').textContent = fmt(exp);
-  var profEl = document.getElementById('dan-profit');
-  profEl.textContent = fmt(net);
-  profEl.className = 'stat-value ' + (net >= 0 ? 'profit' : 'loss');
-
-  var cHtml = classes.length === 0 ? '<div class="empty-state"><div class="empty-icon">💃</div>No classes yet</div>' : '';
-  classes.forEach(function(c) {
-    var earn = (parseFloat(c.price_per_attendee)||0)*(parseInt(c.num_attendees)||0);
-    cHtml += '<div class="log-entry" onclick="editClass(\'' + c.id + '\')">';
-    cHtml += '<div class="log-entry-left"><div class="log-entry-title">Dance Class</div>';
-    cHtml += '<div class="log-entry-meta">' + fmtDate(c.date) + ' · ' + (c.num_attendees||0) + ' attendees @ ' + fmt(c.price_per_attendee) + ' each</div>';
-    if (c.notes) cHtml += '<span class="cat-pill">' + c.notes + '</span>';
-    cHtml += '</div><div class="log-entry-right"><div class="log-entry-amount amount-income">' + fmt(earn) + '</div>';
-    cHtml += '<div class="log-entry-payment">' + (c.payment_method||'') + '</div></div></div>';
-  });
-  document.getElementById('dan-classes-list').innerHTML = cHtml;
-
-  var xHtml = expenses.length === 0 ? '<div class="empty-state"><div class="empty-icon">🧾</div>No expenses yet</div>' : '';
-  expenses.forEach(function(e) {
-    xHtml += '<div class="log-entry" onclick="editExpense(\'dance\',\'' + e.id + '\')">';
-    xHtml += '<div class="log-entry-left"><div class="log-entry-title">' + (e.vendor||'Expense') + '</div>';
-    xHtml += '<div class="log-entry-meta">' + fmtDate(e.date) + '</div>';
-    if (e.category) xHtml += '<span class="cat-pill">' + e.category + '</span>';
-    xHtml += '</div><div class="log-entry-right"><div class="log-entry-amount amount-expense">' + fmt(e.amount) + '</div>';
-    xHtml += '<div class="log-entry-payment">' + (e.payment_method||'') + '</div></div></div>';
-  });
-  document.getElementById('dan-expenses-list').innerHTML = xHtml;
+function buildExpenseList(biz) {
+  var items = allExpenses.filter(function(x) { return x.business === biz && inPeriod(x.date); });
+  if (!items.length) return '<div class="empty-state"><div class="empty-icon">🧾</div>No expenses yet. Tap + Add to log one.</div>';
+  return items.map(function(e) {
+    return '<div class="log-entry" onclick="editExpense(\'' + biz + '\',\'' + e.id + '\')">' +
+      '<div class="le-left"><div class="le-title">' + (e.vendor||'Expense') + '</div>' +
+      '<div class="le-meta">' + fmtDate(e.date) + '</div>' +
+      (e.category ? '<span class="cat-pill">' + e.category + '</span>' : '') + '</div>' +
+      '<div class="le-right"><div class="le-amount c-expense">' + fmt(e.amount) + '</div>' +
+      '<div class="le-pay">' + (e.payment_method||'') + '</div></div></div>';
+  }).join('');
 }
 
-// ══════════════════════════════════════
-//  SKINCARE
-// ══════════════════════════════════════
-function renderSkincare() {
-  var sales = allSales.filter(function(x) { return inPeriod(x.date); });
-  var expenses = allExpenses.filter(function(x) { return x.business==='skincare' && inPeriod(x.date); });
-  var inc = sales.reduce(function(s,x) { return s + (parseFloat(x.price)||0)*(parseInt(x.quantity)||0); }, 0);
-  var exp = expenses.reduce(function(s,x) { return s + (parseFloat(x.amount)||0); }, 0);
-  var net = inc - exp;
-
-  document.getElementById('ski-income').textContent = fmt(inc);
-  document.getElementById('ski-expenses').textContent = fmt(exp);
-  var profEl = document.getElementById('ski-profit');
-  profEl.textContent = fmt(net);
-  profEl.className = 'stat-value ' + (net >= 0 ? 'profit' : 'loss');
-
-  var sHtml = sales.length === 0 ? '<div class="empty-state"><div class="empty-icon">✨</div>No sales yet</div>' : '';
-  sales.forEach(function(s) {
-    var earn = (parseFloat(s.price)||0)*(parseInt(s.quantity)||0);
-    sHtml += '<div class="log-entry" onclick="editSale(\'' + s.id + '\')">';
-    sHtml += '<div class="log-entry-left"><div class="log-entry-title">' + (s.product_type||'Product') + '</div>';
-    sHtml += '<div class="log-entry-meta">' + fmtDate(s.date) + ' · Qty: ' + (s.quantity||1) + ' · ' + (s.marketplace||'') + '</div>';
-    if (s.product_type) sHtml += '<span class="cat-pill">' + s.product_type + '</span>';
-    sHtml += '</div><div class="log-entry-right"><div class="log-entry-amount amount-income">' + fmt(earn) + '</div>';
-    sHtml += '<div class="log-entry-payment">' + (s.payment_method||'') + '</div></div></div>';
-  });
-  document.getElementById('ski-sales-list').innerHTML = sHtml;
-
-  var xHtml = expenses.length === 0 ? '<div class="empty-state"><div class="empty-icon">🧾</div>No expenses yet</div>' : '';
-  expenses.forEach(function(e) {
-    xHtml += '<div class="log-entry" onclick="editExpense(\'skincare\',\'' + e.id + '\')">';
-    xHtml += '<div class="log-entry-left"><div class="log-entry-title">' + (e.vendor||'Expense') + '</div>';
-    xHtml += '<div class="log-entry-meta">' + fmtDate(e.date) + '</div>';
-    if (e.category) xHtml += '<span class="cat-pill">' + e.category + '</span>';
-    xHtml += '</div><div class="log-entry-right"><div class="log-entry-amount amount-expense">' + fmt(e.amount) + '</div>';
-    xHtml += '<div class="log-entry-payment">' + (e.payment_method||'') + '</div></div></div>';
-  });
-  document.getElementById('ski-expenses-list').innerHTML = xHtml;
+// ═══════════════════════════════════
+//  PERIOD
+// ═══════════════════════════════════
+function setPeriod(p, btn) {
+  period = p;
+  document.querySelectorAll('.period-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderAll();
 }
 
-// ══════════════════════════════════════
+// ═══════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════
+function switchPage(page) {
+  activePage = page;
+  document.querySelectorAll('.page').forEach(function(v) { v.classList.remove('active'); });
+  document.querySelectorAll('.topnav-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('tnav-' + page).classList.add('active');
+  document.getElementById('main').scrollTop = 0;
+  if (page === 'overview') renderOverview();
+}
+
+function switchBiz(biz) {
+  activeBiz = biz;
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('tab-' + biz).classList.add('active');
+  document.getElementById('header-biz-label').textContent = BIZ_NAMES[biz];
+  if (activePage === 'overview') renderOverview();
+}
+
+// ═══════════════════════════════════
+//  ADD PICKER
+// ═══════════════════════════════════
+function showAddOptions(biz) {
+  addPickerBiz = biz;
+  document.getElementById('add-type-title').textContent = 'Add to ' + BIZ_NAMES[biz];
+  openModal('add-type-modal');
+}
+
+function openIncomeFromPicker() {
+  closeModal('add-type-modal');
+  openIncomeModal(addPickerBiz);
+}
+
+function openExpenseFromPicker() {
+  closeModal('add-type-modal');
+  openExpenseModal(addPickerBiz);
+}
+
+function openIncomeModal(biz) {
+  resetModal('modal-' + biz + '-income');
+  var titles = { tutoring: 'Log Session', music: 'Log Event', dance: 'Log Class', skincare: 'Log Product Sale' };
+  document.getElementById(biz + '-income-title').textContent = titles[biz];
+  openModal('modal-' + biz + '-income');
+}
+
+function openExpenseModal(biz) {
+  resetModal('modal-' + biz + '-expense');
+  document.getElementById(biz + '-exp-title').textContent = 'Add Expense';
+  openModal('modal-' + biz + '-expense');
+}
+
+// ═══════════════════════════════════
 //  YTD
-// ══════════════════════════════════════
-function loadYTDInputs() {
-  var tutYTD = allYTD.find(function(y) { return y.business === 'tutoring'; });
-  if (tutYTD) {
-    document.getElementById('tut-ytd-amt').value = tutYTD.amount || '';
-    document.getElementById('tut-ytd-date').value = tutYTD.as_of_date || '';
-  }
-  var skiYTD = allYTD.find(function(y) { return y.business === 'skincare'; });
-  if (skiYTD) {
-    document.getElementById('ski-ytd-amt').value = skiYTD.amount || '';
-    document.getElementById('ski-ytd-date').value = skiYTD.as_of_date || '';
-  }
-}
-
+// ═══════════════════════════════════
 async function saveYTD(biz) {
-  var amtId = biz === 'tutoring' ? 'tut-ytd-amt' : 'ski-ytd-amt';
-  var dateId = biz === 'tutoring' ? 'tut-ytd-date' : 'ski-ytd-date';
-  var amt = parseFloat(document.getElementById(amtId).value) || 0;
-  var dt = document.getElementById(dateId).value;
+  var amt = parseFloat(document.getElementById('ytd-amt-' + biz).value) || 0;
+  var dt = document.getElementById('ytd-date-' + biz).value;
   var existing = allYTD.find(function(y) { return y.business === biz; });
   var data = { business: biz, amount: amt, as_of_date: dt || null, updated_at: new Date().toISOString() };
   if (existing) {
@@ -1467,11 +1433,11 @@ async function saveYTD(biz) {
   showToast('YTD saved!');
 }
 
-// ══════════════════════════════════════
-//  SAVE INCOME — TUTORING SESSION
-// ══════════════════════════════════════
+// ═══════════════════════════════════
+//  SAVE — TUTORING SESSION
+// ═══════════════════════════════════
 async function saveSession() {
-  var editId = document.getElementById('tut-session-edit-id').value;
+  var editId = document.getElementById('tut-income-edit-id').value;
   var student = document.getElementById('tut-student').value.trim();
   var rate = parseFloat(document.getElementById('tut-rate').value) || 0;
   var hours = parseFloat(document.getElementById('tut-hours').value) || 0;
@@ -1488,34 +1454,59 @@ async function saveSession() {
     var rec = await sbInsert('tutoring_sessions', data);
     if (rec) allSessions.unshift(rec);
   }
-  closeModal('tut-income-modal');
+  closeModal('modal-tut-income');
   renderAll();
   showToast(editId ? 'Session updated!' : 'Session saved!');
 }
 
-// ══════════════════════════════════════
-//  SAVE INCOME — MUSIC EVENT
-// ══════════════════════════════════════
-var musPayType = 'flat';
-function setMusPayType(t) {
+async function deleteSession() {
+  var id = document.getElementById('tut-income-edit-id').value;
+  if (!id) return;
+  await sbDelete('tutoring_sessions', id);
+  allSessions = allSessions.filter(function(s) { return s.id !== id; });
+  closeModal('modal-tut-income');
+  renderAll();
+  showToast('Session deleted');
+}
+
+function editSession(id) {
+  var s = allSessions.find(function(x) { return x.id === id; });
+  if (!s) return;
+  resetModal('modal-tut-income');
+  document.getElementById('tut-income-title').textContent = 'Edit Session';
+  document.getElementById('tut-income-edit-id').value = id;
+  document.getElementById('tut-student').value = s.student_name || '';
+  document.getElementById('tut-rate').value = s.rate_per_hour || '';
+  document.getElementById('tut-hours').value = s.hours_worked || '';
+  document.getElementById('tut-date').value = s.date || '';
+  document.getElementById('tut-payment').value = s.payment_method || '';
+  document.getElementById('tut-notes').value = s.notes || '';
+  document.getElementById('tut-income-del').style.display = '';
+  openModal('modal-tut-income');
+}
+
+// ═══════════════════════════════════
+//  SAVE — MUSIC EVENT
+// ═══════════════════════════════════
+function setMusPay(t) {
   musPayType = t;
-  document.getElementById('mus-flat-group').style.display = t === 'flat' ? '' : 'none';
-  document.getElementById('mus-hourly-group').style.display = t === 'hourly' ? '' : 'none';
-  document.getElementById('mus-pay-flat').className = 'radio-btn' + (t === 'flat' ? ' selected' : '');
-  document.getElementById('mus-pay-hourly').className = 'radio-btn' + (t === 'hourly' ? ' selected' : '');
+  document.getElementById('mus-flat-grp').style.display = t === 'flat' ? '' : 'none';
+  document.getElementById('mus-hourly-grp').style.display = t === 'hourly' ? '' : 'none';
+  document.getElementById('mus-btn-flat').className = 'radio-btn' + (t === 'flat' ? ' selected' : '');
+  document.getElementById('mus-btn-hourly').className = 'radio-btn' + (t === 'hourly' ? ' selected' : '');
 }
 
 async function saveEvent() {
-  var editId = document.getElementById('mus-event-edit-id').value;
+  var editId = document.getElementById('mus-income-edit-id').value;
   var name = document.getElementById('mus-event-name').value.trim();
   var date = document.getElementById('mus-date').value;
   var payment = document.getElementById('mus-payment').value;
   var notes = document.getElementById('mus-notes').value.trim();
-  var flatRate = parseFloat(document.getElementById('mus-flat-rate').value) || 0;
-  var hourlyRate = parseFloat(document.getElementById('mus-hourly-rate').value) || 0;
+  var flat = parseFloat(document.getElementById('mus-flat').value) || 0;
+  var hourly = parseFloat(document.getElementById('mus-hourly-rate').value) || 0;
   var hours = parseFloat(document.getElementById('mus-hours').value) || 0;
   if (!name || !date) { showToast('Please fill all required fields'); return; }
-  var data = { event_name: name, date: date, pay_type: musPayType, flat_rate: flatRate, hourly_rate: hourlyRate, hours_worked: hours, payment_method: payment, notes: notes };
+  var data = { event_name: name, date: date, pay_type: musPayType, flat_rate: flat, hourly_rate: hourly, hours_worked: hours, payment_method: payment, notes: notes };
   if (editId) {
     await sbUpdate('music_events', editId, data);
     var idx = allEvents.findIndex(function(e) { return e.id === editId; });
@@ -1524,23 +1515,51 @@ async function saveEvent() {
     var rec = await sbInsert('music_events', data);
     if (rec) allEvents.unshift(rec);
   }
-  closeModal('mus-income-modal');
+  closeModal('modal-mus-income');
   renderAll();
   showToast(editId ? 'Event updated!' : 'Event saved!');
 }
 
-// ══════════════════════════════════════
-//  SAVE INCOME — DANCE CLASS
-// ══════════════════════════════════════
+async function deleteEvent() {
+  var id = document.getElementById('mus-income-edit-id').value;
+  if (!id) return;
+  await sbDelete('music_events', id);
+  allEvents = allEvents.filter(function(e) { return e.id !== id; });
+  closeModal('modal-mus-income');
+  renderAll();
+  showToast('Event deleted');
+}
+
+function editEvent(id) {
+  var ev = allEvents.find(function(x) { return x.id === id; });
+  if (!ev) return;
+  resetModal('modal-mus-income');
+  document.getElementById('mus-income-title').textContent = 'Edit Event';
+  document.getElementById('mus-income-edit-id').value = id;
+  document.getElementById('mus-event-name').value = ev.event_name || '';
+  document.getElementById('mus-date').value = ev.date || '';
+  document.getElementById('mus-notes').value = ev.notes || '';
+  document.getElementById('mus-payment').value = ev.payment_method || '';
+  setMusPay(ev.pay_type || 'flat');
+  document.getElementById('mus-flat').value = ev.flat_rate || '';
+  document.getElementById('mus-hourly-rate').value = ev.hourly_rate || '';
+  document.getElementById('mus-hours').value = ev.hours_worked || '';
+  document.getElementById('mus-income-del').style.display = '';
+  openModal('modal-mus-income');
+}
+
+// ═══════════════════════════════════
+//  SAVE — DANCE CLASS
+// ═══════════════════════════════════
 async function saveClass() {
-  var editId = document.getElementById('dan-class-edit-id').value;
+  var editId = document.getElementById('dan-income-edit-id').value;
   var date = document.getElementById('dan-date').value;
   var price = parseFloat(document.getElementById('dan-price').value) || 0;
-  var attendees = parseInt(document.getElementById('dan-attendees').value) || 0;
+  var att = parseInt(document.getElementById('dan-attendees').value) || 0;
   var payment = document.getElementById('dan-payment').value;
   var notes = document.getElementById('dan-notes').value.trim();
-  if (!date || price <= 0 || attendees <= 0) { showToast('Please fill all required fields'); return; }
-  var data = { date: date, price_per_attendee: price, num_attendees: attendees, payment_method: payment, notes: notes };
+  if (!date || price <= 0 || att <= 0) { showToast('Please fill all required fields'); return; }
+  var data = { date: date, price_per_attendee: price, num_attendees: att, payment_method: payment, notes: notes };
   if (editId) {
     await sbUpdate('dance_classes', editId, data);
     var idx = allClasses.findIndex(function(c) { return c.id === editId; });
@@ -1549,32 +1568,57 @@ async function saveClass() {
     var rec = await sbInsert('dance_classes', data);
     if (rec) allClasses.unshift(rec);
   }
-  closeModal('dan-income-modal');
+  closeModal('modal-dan-income');
   renderAll();
   showToast(editId ? 'Class updated!' : 'Class saved!');
 }
 
-// ══════════════════════════════════════
-//  SAVE INCOME — SKINCARE SALE
-// ══════════════════════════════════════
-function setSkincarePrice() {
+async function deleteClass() {
+  var id = document.getElementById('dan-income-edit-id').value;
+  if (!id) return;
+  await sbDelete('dance_classes', id);
+  allClasses = allClasses.filter(function(c) { return c.id !== id; });
+  closeModal('modal-dan-income');
+  renderAll();
+  showToast('Class deleted');
+}
+
+function editClass(id) {
+  var c = allClasses.find(function(x) { return x.id === id; });
+  if (!c) return;
+  resetModal('modal-dan-income');
+  document.getElementById('dan-income-title').textContent = 'Edit Class';
+  document.getElementById('dan-income-edit-id').value = id;
+  document.getElementById('dan-date').value = c.date || '';
+  document.getElementById('dan-price').value = c.price_per_attendee || '';
+  document.getElementById('dan-attendees').value = c.num_attendees || '';
+  document.getElementById('dan-payment').value = c.payment_method || '';
+  document.getElementById('dan-notes').value = c.notes || '';
+  document.getElementById('dan-income-del').style.display = '';
+  openModal('modal-dan-income');
+}
+
+// ═══════════════════════════════════
+//  SAVE — SKINCARE SALE
+// ═══════════════════════════════════
+function setSkiPrice() {
   var sel = document.getElementById('ski-product');
   var opt = sel.options[sel.selectedIndex];
-  var price = opt ? opt.getAttribute('data-price') : '';
-  if (price) document.getElementById('ski-price').value = price;
+  var p = opt ? opt.getAttribute('data-price') : '';
+  if (p) document.getElementById('ski-price').value = p;
 }
 
 async function saveSale() {
-  var editId = document.getElementById('ski-sale-edit-id').value;
+  var editId = document.getElementById('ski-income-edit-id').value;
   var date = document.getElementById('ski-date').value;
   var product = document.getElementById('ski-product').value;
   var price = parseFloat(document.getElementById('ski-price').value) || 0;
   var qty = parseInt(document.getElementById('ski-qty').value) || 1;
-  var marketplace = document.getElementById('ski-marketplace').value.trim();
+  var market = document.getElementById('ski-marketplace').value.trim();
   var payment = document.getElementById('ski-payment').value;
   var notes = document.getElementById('ski-notes').value.trim();
   if (!date || !product) { showToast('Please fill all required fields'); return; }
-  var data = { date: date, product_type: product, price: price, quantity: qty, marketplace: marketplace, payment_method: payment, notes: notes };
+  var data = { date: date, product_type: product, price: price, quantity: qty, marketplace: market, payment_method: payment, notes: notes };
   if (editId) {
     await sbUpdate('skincare_sales', editId, data);
     var idx = allSales.findIndex(function(s) { return s.id === editId; });
@@ -1583,23 +1627,50 @@ async function saveSale() {
     var rec = await sbInsert('skincare_sales', data);
     if (rec) allSales.unshift(rec);
   }
-  closeModal('ski-income-modal');
+  closeModal('modal-ski-income');
   renderAll();
   showToast(editId ? 'Sale updated!' : 'Sale saved!');
 }
 
-// ══════════════════════════════════════
-//  SAVE EXPENSES (all businesses)
-// ══════════════════════════════════════
+async function deleteSale() {
+  var id = document.getElementById('ski-income-edit-id').value;
+  if (!id) return;
+  await sbDelete('skincare_sales', id);
+  allSales = allSales.filter(function(s) { return s.id !== id; });
+  closeModal('modal-ski-income');
+  renderAll();
+  showToast('Sale deleted');
+}
+
+function editSale(id) {
+  var s = allSales.find(function(x) { return x.id === id; });
+  if (!s) return;
+  resetModal('modal-ski-income');
+  document.getElementById('ski-income-title').textContent = 'Edit Sale';
+  document.getElementById('ski-income-edit-id').value = id;
+  document.getElementById('ski-date').value = s.date || '';
+  document.getElementById('ski-product').value = s.product_type || '';
+  document.getElementById('ski-price').value = s.price || '';
+  document.getElementById('ski-qty').value = s.quantity || '';
+  document.getElementById('ski-marketplace').value = s.marketplace || '';
+  document.getElementById('ski-payment').value = s.payment_method || '';
+  document.getElementById('ski-notes').value = s.notes || '';
+  document.getElementById('ski-income-del').style.display = '';
+  openModal('modal-ski-income');
+}
+
+// ═══════════════════════════════════
+//  SAVE — EXPENSES
+// ═══════════════════════════════════
 async function saveExpense(biz) {
-  var prefix = biz === 'tutoring' ? 'tut' : biz === 'music' ? 'mus' : biz === 'dance' ? 'dan' : 'ski';
-  var editId = document.getElementById(prefix + '-exp-edit-id').value;
-  var date = document.getElementById(prefix + '-exp-date').value;
-  var vendor = document.getElementById(prefix + '-exp-vendor').value.trim();
-  var amount = parseFloat(document.getElementById(prefix + '-exp-amount').value) || 0;
-  var category = document.getElementById(prefix + '-exp-category').value;
-  var payment = document.getElementById(prefix + '-exp-payment').value;
-  var notes = document.getElementById(prefix + '-exp-notes').value.trim();
+  var p = biz === 'tutoring' ? 'tut' : biz === 'music' ? 'mus' : biz === 'dance' ? 'dan' : 'ski';
+  var editId = document.getElementById(p + '-exp-edit-id').value;
+  var date = document.getElementById(p + '-exp-date').value;
+  var vendor = document.getElementById(p + '-exp-vendor').value.trim();
+  var amount = parseFloat(document.getElementById(p + '-exp-amount').value) || 0;
+  var category = document.getElementById(p + '-exp-cat').value;
+  var payment = document.getElementById(p + '-exp-pay').value;
+  var notes = document.getElementById(p + '-exp-notes').value.trim();
   if (!date || !vendor || amount <= 0) { showToast('Please fill all required fields'); return; }
   var data = { business: biz, date: date, vendor: vendor, amount: amount, category: category, payment_method: payment, notes: notes };
   if (editId) {
@@ -1610,203 +1681,165 @@ async function saveExpense(biz) {
     var rec = await sbInsert('expenses', data);
     if (rec) allExpenses.unshift(rec);
   }
-  closeModal(prefix + '-expense-modal');
+  closeModal('modal-' + biz + '-expense');
   renderAll();
   showToast(editId ? 'Expense updated!' : 'Expense saved!');
 }
 
-// ══════════════════════════════════════
-//  EDIT / DELETE HANDLERS
-// ══════════════════════════════════════
-function editSession(id) {
-  var s = allSessions.find(function(x) { return x.id === id; });
-  if (!s) return;
-  document.getElementById('tut-income-modal-title').textContent = 'Edit Session';
-  document.getElementById('tut-session-edit-id').value = id;
-  document.getElementById('tut-student').value = s.student_name || '';
-  document.getElementById('tut-rate').value = s.rate_per_hour || '';
-  document.getElementById('tut-hours').value = s.hours_worked || '';
-  document.getElementById('tut-date').value = s.date || '';
-  document.getElementById('tut-payment').value = s.payment_method || '';
-  document.getElementById('tut-notes').value = s.notes || '';
-  document.getElementById('tut-delete-btn').style.display = '';
-  openModal('tut-income-modal');
-}
-
-async function deleteSession() {
-  var id = document.getElementById('tut-session-edit-id').value;
+async function deleteExpense(biz) {
+  var p = biz === 'tutoring' ? 'tut' : biz === 'music' ? 'mus' : biz === 'dance' ? 'dan' : 'ski';
+  var id = document.getElementById(p + '-exp-edit-id').value;
   if (!id) return;
-  await sbDelete('tutoring_sessions', id);
-  allSessions = allSessions.filter(function(s) { return s.id !== id; });
-  closeModal('tut-income-modal');
+  await sbDelete('expenses', id);
+  allExpenses = allExpenses.filter(function(e) { return e.id !== id; });
+  closeModal('modal-' + biz + '-expense');
   renderAll();
-  showToast('Session deleted');
-}
-
-function editEvent(id) {
-  var ev = allEvents.find(function(x) { return x.id === id; });
-  if (!ev) return;
-  document.getElementById('mus-income-modal-title').textContent = 'Edit Event';
-  document.getElementById('mus-event-edit-id').value = id;
-  document.getElementById('mus-event-name').value = ev.event_name || '';
-  document.getElementById('mus-date').value = ev.date || '';
-  document.getElementById('mus-notes').value = ev.notes || '';
-  document.getElementById('mus-payment').value = ev.payment_method || '';
-  setMusPayType(ev.pay_type || 'flat');
-  document.getElementById('mus-flat-rate').value = ev.flat_rate || '';
-  document.getElementById('mus-hourly-rate').value = ev.hourly_rate || '';
-  document.getElementById('mus-hours').value = ev.hours_worked || '';
-  document.getElementById('mus-delete-btn').style.display = '';
-  openModal('mus-income-modal');
-}
-
-async function deleteEvent() {
-  var id = document.getElementById('mus-event-edit-id').value;
-  if (!id) return;
-  await sbDelete('music_events', id);
-  allEvents = allEvents.filter(function(e) { return e.id !== id; });
-  closeModal('mus-income-modal');
-  renderAll();
-  showToast('Event deleted');
-}
-
-function editClass(id) {
-  var c = allClasses.find(function(x) { return x.id === id; });
-  if (!c) return;
-  document.getElementById('dan-income-modal-title').textContent = 'Edit Class';
-  document.getElementById('dan-class-edit-id').value = id;
-  document.getElementById('dan-date').value = c.date || '';
-  document.getElementById('dan-price').value = c.price_per_attendee || '';
-  document.getElementById('dan-attendees').value = c.num_attendees || '';
-  document.getElementById('dan-payment').value = c.payment_method || '';
-  document.getElementById('dan-notes').value = c.notes || '';
-  document.getElementById('dan-delete-btn').style.display = '';
-  openModal('dan-income-modal');
-}
-
-async function deleteClass() {
-  var id = document.getElementById('dan-class-edit-id').value;
-  if (!id) return;
-  await sbDelete('dance_classes', id);
-  allClasses = allClasses.filter(function(c) { return c.id !== id; });
-  closeModal('dan-income-modal');
-  renderAll();
-  showToast('Class deleted');
-}
-
-function editSale(id) {
-  var s = allSales.find(function(x) { return x.id === id; });
-  if (!s) return;
-  document.getElementById('ski-income-modal-title').textContent = 'Edit Sale';
-  document.getElementById('ski-sale-edit-id').value = id;
-  document.getElementById('ski-date').value = s.date || '';
-  document.getElementById('ski-product').value = s.product_type || '';
-  document.getElementById('ski-price').value = s.price || '';
-  document.getElementById('ski-qty').value = s.quantity || '';
-  document.getElementById('ski-marketplace').value = s.marketplace || '';
-  document.getElementById('ski-payment').value = s.payment_method || '';
-  document.getElementById('ski-notes').value = s.notes || '';
-  document.getElementById('ski-delete-btn').style.display = '';
-  openModal('ski-income-modal');
-}
-
-async function deleteSale() {
-  var id = document.getElementById('ski-sale-edit-id').value;
-  if (!id) return;
-  await sbDelete('skincare_sales', id);
-  allSales = allSales.filter(function(s) { return s.id !== id; });
-  closeModal('ski-income-modal');
-  renderAll();
-  showToast('Sale deleted');
+  showToast('Expense deleted');
 }
 
 function editExpense(biz, id) {
   var e = allExpenses.find(function(x) { return x.id === id; });
   if (!e) return;
-  var prefix = biz === 'tutoring' ? 'tut' : biz === 'music' ? 'mus' : biz === 'dance' ? 'dan' : 'ski';
-  var modalId = prefix + '-expense-modal';
-  document.getElementById(prefix + '-exp-modal-title').textContent = 'Edit Expense';
-  document.getElementById(prefix + '-exp-edit-id').value = id;
-  document.getElementById(prefix + '-exp-date').value = e.date || '';
-  document.getElementById(prefix + '-exp-vendor').value = e.vendor || '';
-  document.getElementById(prefix + '-exp-amount').value = e.amount || '';
-  document.getElementById(prefix + '-exp-category').value = e.category || '';
-  document.getElementById(prefix + '-exp-payment').value = e.payment_method || '';
-  document.getElementById(prefix + '-exp-notes').value = e.notes || '';
-  document.getElementById(prefix + '-exp-delete-btn').style.display = '';
-  openModal(modalId);
+  var p = biz === 'tutoring' ? 'tut' : biz === 'music' ? 'mus' : biz === 'dance' ? 'dan' : 'ski';
+  resetModal('modal-' + biz + '-expense');
+  document.getElementById(p + '-exp-title').textContent = 'Edit Expense';
+  document.getElementById(p + '-exp-edit-id').value = id;
+  document.getElementById(p + '-exp-date').value = e.date || '';
+  document.getElementById(p + '-exp-vendor').value = e.vendor || '';
+  document.getElementById(p + '-exp-amount').value = e.amount || '';
+  document.getElementById(p + '-exp-cat').value = e.category || '';
+  document.getElementById(p + '-exp-pay').value = e.payment_method || '';
+  document.getElementById(p + '-exp-notes').value = e.notes || '';
+  document.getElementById(p + '-exp-del').style.display = '';
+  openModal('modal-' + biz + '-expense');
 }
 
-async function deleteExpense(biz) {
-  var prefix = biz === 'tutoring' ? 'tut' : biz === 'music' ? 'mus' : biz === 'dance' ? 'dan' : 'ski';
-  var id = document.getElementById(prefix + '-exp-edit-id').value;
-  if (!id) return;
-  await sbDelete('expenses', id);
-  allExpenses = allExpenses.filter(function(e) { return e.id !== id; });
-  closeModal(prefix + '-expense-modal');
-  renderAll();
-  showToast('Expense deleted');
+// ═══════════════════════════════════
+//  EXPORT — CSV
+// ═══════════════════════════════════
+function exportCSV(biz) {
+  var rows = [];
+  var bizName = BIZ_NAMES[biz];
+
+  // Income rows
+  if (biz === 'tutoring') {
+    rows.push(['Type','Date','Student','Rate/hr','Hours','Earned','Payment','Notes']);
+    allSessions.forEach(function(s) {
+      var earn = (parseFloat(s.rate_per_hour)||0)*(parseFloat(s.hours_worked)||0);
+      rows.push(['Income', s.date||'', s.student_name||'', s.rate_per_hour||'', s.hours_worked||'', earn.toFixed(2), s.payment_method||'', s.notes||'']);
+    });
+  } else if (biz === 'music') {
+    rows.push(['Type','Date','Event','Pay Type','Flat Rate','Hourly Rate','Hours','Earned','Payment','Notes']);
+    allEvents.forEach(function(ev) {
+      var earn = eventEarning(ev);
+      rows.push(['Income', ev.date||'', ev.event_name||'', ev.pay_type||'', ev.flat_rate||'', ev.hourly_rate||'', ev.hours_worked||'', earn.toFixed(2), ev.payment_method||'', ev.notes||'']);
+    });
+  } else if (biz === 'dance') {
+    rows.push(['Type','Date','Price/Attendee','Attendees','Earned','Payment','Notes']);
+    allClasses.forEach(function(c) {
+      var earn = (parseFloat(c.price_per_attendee)||0)*(parseInt(c.num_attendees)||0);
+      rows.push(['Income', c.date||'', c.price_per_attendee||'', c.num_attendees||'', earn.toFixed(2), c.payment_method||'', c.notes||'']);
+    });
+  } else if (biz === 'skincare') {
+    rows.push(['Type','Date','Product','Price Each','Qty','Total','Marketplace','Payment','Notes']);
+    allSales.forEach(function(s) {
+      var earn = (parseFloat(s.price)||0)*(parseInt(s.quantity)||0);
+      rows.push(['Income', s.date||'', s.product_type||'', s.price||'', s.quantity||'', earn.toFixed(2), s.marketplace||'', s.payment_method||'', s.notes||'']);
+    });
+  }
+
+  // Blank row + expenses
+  rows.push([]);
+  rows.push(['EXPENSES','Date','Vendor','Amount','Category','Payment','Notes']);
+  allExpenses.filter(function(e) { return e.business === biz; }).forEach(function(e) {
+    rows.push(['Expense', e.date||'', e.vendor||'', parseFloat(e.amount||0).toFixed(2), e.category||'', e.payment_method||'', e.notes||'']);
+  });
+
+  var csv = rows.map(function(r) {
+    return r.map(function(c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
+  }).join('\n');
+
+  downloadFile(bizName.replace(/\s/g,'_') + '_export.csv', 'text/csv', csv);
+  showToast(bizName + ' CSV downloaded!');
 }
 
-// ══════════════════════════════════════
-//  NAVIGATION
-// ══════════════════════════════════════
-function switchTab(tab) {
-  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
-  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-  document.getElementById('view-' + tab).classList.add('active');
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.getElementById('main').scrollTop = 0;
+// ═══════════════════════════════════
+//  EXPORT — SCHEDULE C
+// ═══════════════════════════════════
+function exportScheduleC(biz) {
+  var bizName = BIZ_NAMES[biz];
+  var expenses = allExpenses.filter(function(e) { return e.business === biz; });
+  var byCategory = {};
+  expenses.forEach(function(e) {
+    var cat = e.category || 'Other';
+    if (!byCategory[cat]) byCategory[cat] = 0;
+    byCategory[cat] += parseFloat(e.amount) || 0;
+  });
+  var totalExp = expenses.reduce(function(s,e) { return s + (parseFloat(e.amount)||0); }, 0);
+  var totalInc = incomeFor(biz, false);
+
+  var rows = [['Schedule C Expense Summary — ' + bizName], ['Generated: ' + new Date().toLocaleDateString()], []];
+  rows.push(['INCOME']);
+  rows.push(['Total ' + INCOME_LABELS[biz], '$' + totalInc.toFixed(2)]);
+  rows.push([]);
+  rows.push(['EXPENSES BY CATEGORY', 'Amount']);
+  Object.keys(byCategory).sort().forEach(function(cat) {
+    rows.push([cat, '$' + byCategory[cat].toFixed(2)]);
+  });
+  rows.push([]);
+  rows.push(['TOTAL EXPENSES', '$' + totalExp.toFixed(2)]);
+  rows.push(['NET PROFIT', '$' + (totalInc - totalExp).toFixed(2)]);
+
+  var csv = rows.map(function(r) {
+    return r.map(function(c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
+  }).join('\n');
+
+  downloadFile(bizName.replace(/\s/g,'_') + '_ScheduleC.csv', 'text/csv', csv);
+  showToast(bizName + ' Schedule C downloaded!');
 }
 
-// ══════════════════════════════════════
+function downloadFile(filename, type, content) {
+  var blob = new Blob([content], { type: type });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════
 //  MODAL HELPERS
-// ══════════════════════════════════════
+// ═══════════════════════════════════
 function openModal(id) {
   document.getElementById(id).classList.add('open');
 }
 
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
-  // reset edit state
-  var sheet = document.querySelector('#' + id + ' .modal-sheet');
-  if (sheet) {
-    var hiddens = sheet.querySelectorAll('input[type="hidden"]');
-    hiddens.forEach(function(h) { h.value = ''; });
-    var delBtns = sheet.querySelectorAll('.delete-btn');
-    delBtns.forEach(function(b) { b.style.display = 'none'; });
-    var titles = sheet.querySelectorAll('.modal-title');
-    titles.forEach(function(t) {
-      var orig = t.getAttribute('data-orig');
-      if (orig) t.textContent = orig;
-    });
-  }
 }
 
-// Store original titles
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.modal-title').forEach(function(t) {
-    t.setAttribute('data-orig', t.textContent);
-  });
-  // Set today's date on all date inputs
-  var today = new Date().toISOString().split('T')[0];
-  document.querySelectorAll('input[type="date"]').forEach(function(el) {
-    if (!el.value) el.value = today;
-  });
+function resetModal(id) {
+  var sheet = document.querySelector('#' + id + ' .modal-sheet');
+  if (!sheet) return;
+  sheet.querySelectorAll('input[type="hidden"]').forEach(function(h) { h.value = ''; });
+  sheet.querySelectorAll('.delete-btn').forEach(function(b) { b.style.display = 'none'; });
+  sheet.querySelectorAll('input[type="text"], input[type="number"]').forEach(function(i) { i.value = ''; });
+  sheet.querySelectorAll('select').forEach(function(s) { s.selectedIndex = 0; });
+  sheet.querySelectorAll('input[type="date"]').forEach(function(d) { d.value = new Date().toISOString().split('T')[0]; });
+  // Reset music pay type
+  if (id === 'modal-mus-income') { setMusPay('flat'); }
+}
+
+// Close on overlay tap
+document.querySelectorAll('.modal-overlay').forEach(function(o) {
+  o.addEventListener('click', function(e) { if (e.target === o) o.classList.remove('open'); });
 });
 
-// Close modal on overlay tap
-document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) {
-      overlay.classList.remove('open');
-    }
-  });
-});
-
-// ══════════════════════════════════════
+// ═══════════════════════════════════
 //  TOAST
-// ══════════════════════════════════════
+// ═══════════════════════════════════
 function showToast(msg) {
   var t = document.getElementById('toast');
   t.textContent = msg;
@@ -1814,17 +1847,14 @@ function showToast(msg) {
   setTimeout(function() { t.classList.remove('show'); }, 2200);
 }
 
-// ══════════════════════════════════════
+// ═══════════════════════════════════
 //  INIT
-// ══════════════════════════════════════
+// ═══════════════════════════════════
 (function init() {
   try {
-    // Safety timeout — show app after 8 seconds regardless
     setTimeout(function() { showApp(); }, 8000);
     loadAll();
-  } catch(e) {
-    showApp();
-  }
+  } catch(e) { showApp(); }
 })();
 </script>
 </body>
