@@ -1402,17 +1402,23 @@ function openExpenseFromPicker() {
   openExpenseModal(addPickerBiz);
 }
 
+function bizPrefix(biz) {
+  return biz === 'tutoring' ? 'tut' : biz === 'music' ? 'mus' : biz === 'dance' ? 'dan' : 'ski';
+}
+
 function openIncomeModal(biz) {
-  resetModal('modal-' + biz + '-income');
+  var p = bizPrefix(biz);
+  resetModal('modal-' + p + '-income');
   var titles = { tutoring: 'Log Session', music: 'Log Event', dance: 'Log Class', skincare: 'Log Product Sale' };
-  document.getElementById(biz + '-income-title').textContent = titles[biz];
-  openModal('modal-' + biz + '-income');
+  document.getElementById(p + '-income-title').textContent = titles[biz];
+  openModal('modal-' + p + '-income');
 }
 
 function openExpenseModal(biz) {
-  resetModal('modal-' + biz + '-expense');
-  document.getElementById(biz + '-exp-title').textContent = 'Add Expense';
-  openModal('modal-' + biz + '-expense');
+  var p = bizPrefix(biz);
+  resetModal('modal-' + p + '-expense');
+  document.getElementById(p + '-exp-title').textContent = 'Add Expense';
+  openModal('modal-' + p + '-expense');
 }
 
 // ═══════════════════════════════════
