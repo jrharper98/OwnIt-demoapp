@@ -549,24 +549,34 @@ var allSessions = [], allEvents = [], allClasses = [], allSales = [];
 var allExpenses = [], allYTD = [], allRepeats = [], allDocs = [];
 var pendingFiles = {}, pendingFileObjects = {};
 
-function sbH() { return {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'}; }
+// Read headers — no Content-Type or Prefer on GETs
+function sbRH() { return {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Accept':'application/json'}; }
+// Write headers
+function sbWH(prefer) { return {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':prefer||'return=minimal'}; }
+
 function sbGet(t, p) {
   var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-  var opts = {method:'GET', headers:sbH()};
-  if (ctrl) opts.signal = ctrl.signal;
   var timer = ctrl ? setTimeout(function() { ctrl.abort(); }, 10000) : null;
-  return fetch(SB_URL+'/rest/v1/'+t+'?'+(p||''), opts)
-    .then(function(r) { if (timer) clearTimeout(timer); return r.json(); })
+  return fetch(SB_URL+'/rest/v1/'+t+'?'+(p||''), {method:'GET', headers:sbRH(), signal:ctrl?ctrl.signal:undefined})
+    .then(function(r) { if (timer) clearTimeout(timer); if(!r.ok) return []; return r.json(); })
     .catch(function() { if (timer) clearTimeout(timer); return []; });
 }
-function sbIns(t, d) { return fetch(SB_URL+'/rest/v1/'+t, {method:'POST', headers:sbH(), body:JSON.stringify(d)}); }
-function sbInsRep(t, d) {
-  var h = Object.assign({}, sbH(), {'Prefer':'return=representation'});
-  return fetch(SB_URL+'/rest/v1/'+t, {method:'POST', headers:h, body:JSON.stringify(d)}).then(function(r){return r.json();}).catch(function(){return [];});
+function sbIns(t, d) {
+  return fetch(SB_URL+'/rest/v1/'+t, {method:'POST', headers:sbWH('return=minimal'), body:JSON.stringify(d)});
 }
-function sbUpd(t, id, d) { return fetch(SB_URL+'/rest/v1/'+t+'?id=eq.'+encodeURIComponent(id), {method:'PATCH', headers:sbH(), body:JSON.stringify(d)}); }
-function sbDel(t, id) { return fetch(SB_URL+'/rest/v1/'+t+'?id=eq.'+encodeURIComponent(id), {method:'DELETE', headers:sbH()}); }
-function sbUps(t, d) { return fetch(SB_URL+'/rest/v1/'+t, {method:'POST', headers:Object.assign({},sbH(),{'Prefer':'resolution=merge-duplicates,return=minimal'}), body:JSON.stringify(d)}); }
+function sbInsRep(t, d) {
+  return fetch(SB_URL+'/rest/v1/'+t, {method:'POST', headers:sbWH('return=representation'), body:JSON.stringify(d)})
+    .then(function(r){return r.json();}).catch(function(){return [];});
+}
+function sbUpd(t, id, d) {
+  return fetch(SB_URL+'/rest/v1/'+t+'?id=eq.'+encodeURIComponent(id), {method:'PATCH', headers:sbWH('return=minimal'), body:JSON.stringify(d)});
+}
+function sbDel(t, id) {
+  return fetch(SB_URL+'/rest/v1/'+t+'?id=eq.'+encodeURIComponent(id), {method:'DELETE', headers:sbWH('return=minimal')});
+}
+function sbUps(t, d) {
+  return fetch(SB_URL+'/rest/v1/'+t, {method:'POST', headers:sbWH('resolution=merge-duplicates,return=minimal'), body:JSON.stringify(d)});
+}
 
 function sbUploadFile(file, path) {
   return fetch(SB_URL+'/storage/v1/object/receipts/'+path, {
@@ -878,19 +888,12 @@ function uploadDocs(input){
   var today=new Date().toLocaleDateString();
   var yEl=document.getElementById('doc-year-input');
   var year=(yEl?yEl.value:'')||new Date().getFullYear()+'';
-  // Insert one at a time to avoid array insert issues
   var rows=files.map(function(f){return{id:genId(),name:f.name,biz:BN[activeBiz],uploaded:today,year:year};});
   setSyncDot('syncing');
-  Promise.all(rows.map(function(row){return sbInsRep('docs',row);}))
-    .then(function(results){
-      results.forEach(function(r){
-        var rec=Array.isArray(r)?r[0]:r;
-        if(rec&&rec.id) allDocs.unshift(rec);
-      });
-      return loadAll();
-    })
-    .then(function(){showToast('&#10003; '+files.length+' form(s) uploaded');setSyncDot('synced');renderDocs();})
-    .catch(function(){setSyncDot('error');showToast('Upload failed — check Supabase Storage settings');});
+  Promise.all(rows.map(function(row){ return sbInsRep('docs', row); }))
+    .then(function(){ return loadAll(); })
+    .then(function(){ showToast('&#10003; '+files.length+' form(s) uploaded'); setSyncDot('synced'); renderDocs(); })
+    .catch(function(){ setSyncDot('error'); showToast('Upload failed'); });
 }
 function delDoc(id){if(!confirm('Remove this form?'))return;setSyncDot('syncing');sbDel('docs',id).then(function(){return loadAll();}).then(function(){showToast('Removed');renderDocs();});}
 
