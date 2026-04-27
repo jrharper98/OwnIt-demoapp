@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OwnIt Debug</title>
+<style>
+body{font-family:monospace;background:#0D1B2A;color:#A8DCDA;padding:16px;font-size:13px;}
+h1{color:#00B4A6;font-size:18px;margin-bottom:4px;}
+.sub{color:#8A9BB0;margin-bottom:20px;font-size:12px;}
+.card{background:#0F2940;border:1px solid rgba(0,180,166,0.2);border-radius:10px;padding:14px;margin-bottom:12px;}
+.card-title{font-weight:700;color:#F4A300;margin-bottom:8px;font-size:13px;}
+.row{display:flex;justify-content:space-between;align-items:flex-start;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);gap:10px;}
+.row:last-child{border-bottom:none;}
+.label{color:#8A9BB0;flex:none;min-width:180px;}
+.val{color:#fff;word-break:break-all;text-align:right;}
+.ok{color:#1DB954;}
+.err{color:#E53935;}
+.warn{color:#F57C00;}
+.raw{background:#0D1B2A;border-radius:6px;padding:8px;margin-top:8px;font-size:11px;color:#A8DCDA;max-height:120px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;}
+button{background:#00B4A6;color:#0D1B2A;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;margin-right:8px;margin-bottom:8px;font-family:monospace;}
+button.sec{background:#0F2940;color:#00B4A6;border:1px solid rgba(0,180,166,0.3);}
+#insert-result{margin-top:12px;}
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:6px;vertical-align:middle;}
+.tag.ok{background:rgba(29,185,84,0.15);color:#1DB954;}
+.tag.err{background:rgba(229,57,53,0.15);color:#E53935;}
+.tag.warn{background:rgba(245,124,0,0.15);color:#F57C00;}
+</style>
+</head>
+<body>
+<h1>🔧 OwnIt Debug Console</h1>
+<div class="sub">Tests every Supabase table — fetch, insert, and delete. Run each section to diagnose.</div>
+
+<div class="card">
+  <div class="card-title">1. Connection & Config</div>
+  <div class="row"><span class="label">Supabase URL</span><span class="val" id="sb-url">—</span></div>
+  <div class="row"><span class="label">Key prefix</span><span class="val" id="sb-key">—</span></div>
+  <div class="row"><span class="label">Browser</span><span class="val" id="browser">—</span></div>
+  <div class="row"><span class="label">AbortController</span><span class="val" id="abort-ctrl">—</span></div>
+</div>
+
+<div class="card">
+  <div class="card-title">2. Table Fetch Tests <span id="fetch-summary"></span></div>
+  <button onclick="runFetchTests()">▶ Run All Fetches</button>
+  <div id="fetch-results"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">3. Insert + Delete Test</div>
+  <div class="sub" style="margin-bottom:10px">Inserts one row into each table, then deletes it. Confirms write permissions.</div>
+  <button onclick="runInsertTests()">▶ Run Insert Tests</button>
+  <div id="insert-result"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">4. Header Test</div>
+  <div class="sub" style="margin-bottom:10px">Tests GET with and without Content-Type header to confirm which works.</div>
+  <button onclick="runHeaderTest()">▶ Run Header Test</button>
+  <div id="header-result"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">5. Raw Response Inspector</div>
+  <div class="sub" style="margin-bottom:10px">Fetches expenses table and shows the full raw response.</div>
+  <button onclick="runRawTest()">▶ Show Raw Response</button>
+  <div id="raw-result"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">6. Timeout Test</div>
+  <button onclick="runTimeoutTest()">▶ Test 5s Timeout</button>
+  <div id="timeout-result"></div>
+</div>
+
+<script>
+var SB_URL = 'https://qoswwueqmfjmlfkkhwtf.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvc3d3dWVxbWZqbWxma2tod3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNDY3NTgsImV4cCI6MjA5MjcyMjc1OH0.HQfRqmiooiFcc2bpmzZNfna6AkbAwndUV-53FxqC5DU';
+
+var TABLES = [
+  'tutoring_sessions',
+  'music_events',
+  'dance_classes',
+  'skincare_sales',
+  'expenses',
+  'income_ytd',
+  'repeat_expenses',
+  'docs'
+];
+
+// ── Config display ──
+document.getElementById('sb-url').textContent = SB_URL;
+document.getElementById('sb-key').textContent = SB_KEY.slice(0,20) + '...';
+document.getElementById('browser').textContent = navigator.userAgent.slice(0,60);
+document.getElementById('abort-ctrl').innerHTML = typeof AbortController !== 'undefined'
+  ? '<span class="ok">✅ Available</span>'
+  : '<span class="err">❌ Not available</span>';
+
+// ── Header variants ──
+function readHeaders() {
+  return { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Accept': 'application/json' };
+}
+function writeHeaders(prefer) {
+  return { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': prefer || 'return=minimal' };
+}
+function oldHeaders() {
+  // The broken headers — for comparison
+  return { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
+}
+
+// ── Fetch tests ──
+async function runFetchTests() {
+  var out = document.getElementById('fetch-results');
+  var summary = document.getElementById('fetch-summary');
+  out.innerHTML = '<div style="color:var(--muted,#8A9BB0);padding:8px 0">Running...</div>';
+  var results = [];
+
+  for (var i = 0; i < TABLES.length; i++) {
+    var table = TABLES[i];
+    var start = Date.now();
+    try {
+      var r = await fetch(SB_URL + '/rest/v1/' + table + '?limit=5', {
+        method: 'GET',
+        headers: readHeaders()
+      });
+      var elapsed = Date.now() - start;
+      var status = r.status;
+      var body = await r.text();
+      var parsed = null;
+      try { parsed = JSON.parse(body); } catch(e) {}
+      var isArr = Array.isArray(parsed);
+      var count = isArr ? parsed.length : null;
+      results.push({ table: table, status: status, ok: r.ok, count: count, elapsed: elapsed, body: body.slice(0, 300), isArr: isArr });
+    } catch(e) {
+      results.push({ table: table, status: 'ERROR', ok: false, error: e.message, elapsed: Date.now()-start });
+    }
+  }
+
+  var okCount = results.filter(function(r){ return r.ok && r.isArr; }).length;
+  summary.innerHTML = okCount === results.length
+    ? '<span class="tag ok">All ' + okCount + ' tables OK</span>'
+    : '<span class="tag err">' + okCount + '/' + results.length + ' OK</span>';
+
+  out.innerHTML = results.map(function(r) {
+    var statusClass = r.ok && r.isArr ? 'ok' : 'err';
+    var countStr = r.count !== null ? r.count + ' rows' : (r.error || 'parse failed');
+    return '<div class="row"><span class="label">' + r.table + '</span>' +
+      '<span class="val ' + statusClass + '">' +
+      'HTTP ' + r.status + ' &nbsp;|&nbsp; ' + countStr + ' &nbsp;|&nbsp; ' + r.elapsed + 'ms' +
+      (r.body && !r.isArr ? '<div class="raw">' + escHtml(r.body) + '</div>' : '') +
+      '</span></div>';
+  }).join('');
+}
+
+// ── Insert tests ──
+async function runInsertTests() {
+  var out = document.getElementById('insert-result');
+  out.innerHTML = '<div style="color:#8A9BB0;padding:8px 0">Running...</div>';
+  var results = [];
+
+  var TEST_ROWS = {
+    'expenses':           { id: 'debug-test-' + Date.now(), business: 'tutoring', date: '2099-01-01', vendor: 'DEBUG TEST', amount: 0, category: 'Other', payment_method: '', notes: 'debug', files: '[]' },
+    'tutoring_sessions':  { id: 'debug-test-' + Date.now(), student_name: 'DEBUG', rate_per_hour: 0, hours_worked: 0, date: '2099-01-01', payment_method: '', notes: 'debug' },
+    'music_events':       { id: 'debug-test-' + Date.now(), event_name: 'DEBUG', date: '2099-01-01', pay_type: 'flat', flat_rate: 0, payment_method: '', notes: 'debug' },
+    'dance_classes':      { id: 'debug-test-' + Date.now(), date: '2099-01-01', price_per_attendee: 0, num_attendees: 0, payment_method: '', notes: 'debug' },
+    'skincare_sales':     { id: 'debug-test-' + Date.now(), date: '2099-01-01', product_type: 'DEBUG', price: 0, quantity: 0, marketplace: '', payment_method: '', notes: 'debug' },
+    'docs':               { id: 'debug-test-' + Date.now(), name: 'debug.pdf', biz: 'Tutoring', uploaded: '1/1/2099', year: '2099' },
+    'repeat_expenses':    { id: 'debug-test-' + Date.now(), business: 'tutoring', vendor: 'DEBUG', amount: 0, category: 'Other', payment_method: '', notes: 'debug', freq: 'monthly', next_date: '2099-01-01' }
+  };
+
+  var tablesToTest = Object.keys(TEST_ROWS);
+  for (var i = 0; i < tablesToTest.length; i++) {
+    var table = tablesToTest[i];
+    var row = TEST_ROWS[table];
+    var insertOk = false, deleteOk = false, insertStatus = '', deleteStatus = '', insertBody = '';
+
+    // Insert
+    try {
+      var ir = await fetch(SB_URL + '/rest/v1/' + table, {
+        method: 'POST',
+        headers: writeHeaders('return=minimal'),
+        body: JSON.stringify(row)
+      });
+      insertStatus = ir.status;
+      insertBody = await ir.text();
+      insertOk = ir.status === 201 || ir.status === 200;
+    } catch(e) { insertStatus = 'ERROR: ' + e.message; }
+
+    // Delete (even if insert failed, try cleanup)
+    try {
+      var dr = await fetch(SB_URL + '/rest/v1/' + table + '?id=eq.' + encodeURIComponent(row.id), {
+        method: 'DELETE',
+        headers: writeHeaders('return=minimal')
+      });
+      deleteStatus = dr.status;
+      deleteOk = dr.status === 200 || dr.status === 204;
+    } catch(e) { deleteStatus = 'ERROR: ' + e.message; }
+
+    results.push({ table: table, insertOk: insertOk, insertStatus: insertStatus, deleteOk: deleteOk, deleteStatus: deleteStatus, insertBody: insertBody });
+  }
+
+  out.innerHTML = results.map(function(r) {
+    var cls = r.insertOk ? 'ok' : 'err';
+    return '<div class="row"><span class="label">' + r.table + '</span>' +
+      '<span class="val">' +
+      '<span class="' + (r.insertOk?'ok':'err') + '">Insert: ' + r.insertStatus + '</span>' +
+      ' &nbsp;|&nbsp; ' +
+      '<span class="' + (r.deleteOk?'ok':'warn') + '">Delete: ' + r.deleteStatus + '</span>' +
+      (r.insertBody && !r.insertOk ? '<div class="raw">' + escHtml(r.insertBody) + '</div>' : '') +
+      '</span></div>';
+  }).join('');
+}
+
+// ── Header test ──
+async function runHeaderTest() {
+  var out = document.getElementById('header-result');
+  out.innerHTML = '<div style="color:#8A9BB0">Running...</div>';
+
+  var tests = [
+    { label: 'GET with Accept only (correct)', headers: readHeaders() },
+    { label: 'GET with Content-Type + Prefer (broken)', headers: oldHeaders() },
+  ];
+
+  var html = '';
+  for (var i = 0; i < tests.length; i++) {
+    var t = tests[i];
+    try {
+      var r = await fetch(SB_URL + '/rest/v1/expenses?limit=3', { method: 'GET', headers: t.headers });
+      var body = await r.text();
+      var parsed = null;
+      try { parsed = JSON.parse(body); } catch(e) {}
+      var isArr = Array.isArray(parsed);
+      var rowCount = isArr ? parsed.length : 'not an array';
+      html += '<div class="row"><span class="label">' + t.label + '</span>' +
+        '<span class="val ' + (isArr?'ok':'err') + '">' +
+        'HTTP ' + r.status + ' &nbsp;|&nbsp; rows: ' + rowCount +
+        '<div class="raw">' + escHtml(body.slice(0,200)) + '</div>' +
+        '</span></div>';
+    } catch(e) {
+      html += '<div class="row"><span class="label">' + t.label + '</span><span class="val err">ERROR: ' + e.message + '</span></div>';
+    }
+  }
+  out.innerHTML = html;
+}
+
+// ── Raw response ──
+async function runRawTest() {
+  var out = document.getElementById('raw-result');
+  out.innerHTML = '<div style="color:#8A9BB0">Fetching...</div>';
+  try {
+    var r = await fetch(SB_URL + '/rest/v1/expenses?limit=3', { method: 'GET', headers: readHeaders() });
+    var body = await r.text();
+    out.innerHTML = '<div class="row"><span class="label">Status</span><span class="val ' + (r.ok?'ok':'err') + '">' + r.status + ' ' + r.statusText + '</span></div>' +
+      '<div class="row"><span class="label">Content-Type</span><span class="val">' + (r.headers.get('content-type')||'none') + '</span></div>' +
+      '<div class="raw">' + escHtml(body) + '</div>';
+  } catch(e) {
+    out.innerHTML = '<span class="err">ERROR: ' + e.message + '</span>';
+  }
+}
+
+// ── Timeout test ──
+async function runTimeoutTest() {
+  var out = document.getElementById('timeout-result');
+  out.innerHTML = '<div style="color:#8A9BB0">Waiting up to 5 seconds...</div>';
+  var start = Date.now();
+  try {
+    var ctrl = new AbortController();
+    var timer = setTimeout(function(){ ctrl.abort(); }, 5000);
+    var r = await fetch(SB_URL + '/rest/v1/expenses?limit=1', { method: 'GET', headers: readHeaders(), signal: ctrl.signal });
+    clearTimeout(timer);
+    var elapsed = Date.now() - start;
+    out.innerHTML = '<span class="ok">✅ Responded in ' + elapsed + 'ms — timeout not needed</span>';
+  } catch(e) {
+    var elapsed = Date.now() - start;
+    if (e.name === 'AbortError') {
+      out.innerHTML = '<span class="err">❌ Timed out after ' + elapsed + 'ms — Supabase not reachable</span>';
+    } else {
+      out.innerHTML = '<span class="err">❌ Error: ' + e.message + '</span>';
+    }
+  }
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Auto-run config check
+window.addEventListener('load', function() {
+  // Show immediate status
+  document.getElementById('sb-url').innerHTML = '<span class="ok">' + SB_URL + '</span>';
+  document.getElementById('sb-key').innerHTML = '<span class="ok">' + SB_KEY.slice(0,30) + '...</span>';
+});
+</script>
+</body>
+</html>
