@@ -358,23 +358,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--teal-lt);color:var(--whit
     <div class="modal-title" id="ski-income-title">Log Product Sale</div>
     <input type="hidden" id="ski-income-edit-id">
     <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="ski-date"></div>
-    <div class="form-group"><label class="form-label">Product Type</label>
-      <select class="form-select" id="ski-product" onchange="setSkiPrice()">
-        <option value="">Select product...</option>
-        <option value="Soap" data-price="12">Soap — $12.00</option>
-        <option value="Hair Oil" data-price="22">Hair Oil — $22.00</option>
-        <option value="Lotion" data-price="18">Lotion — $18.00</option>
-        <option value="Facial Cleanser" data-price="28">Facial Cleanser — $28.00</option>
-      </select></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Price Each ($)</label><input type="number" class="form-input" id="ski-price" placeholder="0.00" inputmode="decimal"></div>
-      <div class="form-group"><label class="form-label">Quantity</label><input type="number" class="form-input" id="ski-qty" placeholder="1" inputmode="numeric"></div>
-    </div>
     <div class="form-group"><label class="form-label">Marketplace / Venue</label><input type="text" class="form-input" id="ski-marketplace" placeholder="e.g. Etsy, Farmers Market"></div>
     <div class="form-group"><label class="form-label">Customer Payment Method</label>
       <select class="form-select unassigned" id="ski-payment" onchange="flagSel(this)">
         <option value="">— Select —</option><option>Business Card</option><option>Personal Card</option><option>Venmo</option><option>Zelle</option><option>Cash</option><option>PayPal</option>
       </select></div>
+    <!-- Product rows -->
+    <div id="ski-product-rows"></div>
+    <button class="add-btn" style="margin-bottom:14px;width:100%;justify-content:center" onclick="addSkiRow()">+ Add Another Product</button>
     <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" id="ski-notes" placeholder="Optional"></div>
     <button class="submit-btn" onclick="saveSale()">Save Sale</button>
     <button class="delete-btn" id="ski-income-del" style="display:none" onclick="deleteSale()">Delete Sale</button>
@@ -569,6 +560,10 @@ function sbGet(t, p) {
     .catch(function() { if (timer) clearTimeout(timer); return []; });
 }
 function sbIns(t, d) { return fetch(SB_URL+'/rest/v1/'+t, {method:'POST', headers:sbH(), body:JSON.stringify(d)}); }
+function sbInsRep(t, d) {
+  var h = Object.assign({}, sbH(), {'Prefer':'return=representation'});
+  return fetch(SB_URL+'/rest/v1/'+t, {method:'POST', headers:h, body:JSON.stringify(d)}).then(function(r){return r.json();}).catch(function(){return [];});
+}
 function sbUpd(t, id, d) { return fetch(SB_URL+'/rest/v1/'+t+'?id=eq.'+encodeURIComponent(id), {method:'PATCH', headers:sbH(), body:JSON.stringify(d)}); }
 function sbDel(t, id) { return fetch(SB_URL+'/rest/v1/'+t+'?id=eq.'+encodeURIComponent(id), {method:'DELETE', headers:sbH()}); }
 function sbUps(t, d) { return fetch(SB_URL+'/rest/v1/'+t, {method:'POST', headers:Object.assign({},sbH(),{'Prefer':'resolution=merge-duplicates,return=minimal'}), body:JSON.stringify(d)}); }
@@ -642,7 +637,7 @@ function fmtMonth(ym) { var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug',
 
 function renderAll() {
   try { renderEarnings(); } catch(e) {}
-  try { if(activePage==='overview') renderOverview(); } catch(e) {}
+  try { renderOverview(); } catch(e) {}
   try { if(activePage==='docs') renderDocs(); } catch(e) {}
   try { if(activePage==='export') renderExport(); } catch(e) {}
 }
@@ -879,12 +874,23 @@ function renderDocs(){
 
 function uploadDocs(input){
   var files=Array.prototype.slice.call(input.files);
+  if(!files.length) return;
   var today=new Date().toLocaleDateString();
   var yEl=document.getElementById('doc-year-input');
   var year=(yEl?yEl.value:'')||new Date().getFullYear()+'';
+  // Insert one at a time to avoid array insert issues
   var rows=files.map(function(f){return{id:genId(),name:f.name,biz:BN[activeBiz],uploaded:today,year:year};});
   setSyncDot('syncing');
-  sbIns('docs',rows).then(function(){return loadAll();}).then(function(){showToast('&#10003; '+files.length+' form(s) uploaded');renderDocs();}).catch(function(){setSyncDot('error');showToast('Upload failed');});
+  Promise.all(rows.map(function(row){return sbInsRep('docs',row);}))
+    .then(function(results){
+      results.forEach(function(r){
+        var rec=Array.isArray(r)?r[0]:r;
+        if(rec&&rec.id) allDocs.unshift(rec);
+      });
+      return loadAll();
+    })
+    .then(function(){showToast('&#10003; '+files.length+' form(s) uploaded');setSyncDot('synced');renderDocs();})
+    .catch(function(){setSyncDot('error');showToast('Upload failed — check Supabase Storage settings');});
 }
 function delDoc(id){if(!confirm('Remove this form?'))return;setSyncDot('syncing');sbDel('docs',id).then(function(){return loadAll();}).then(function(){showToast('Removed');renderDocs();});}
 
@@ -1024,7 +1030,7 @@ async function saveSession(){
   var date=document.getElementById('tut-date').value;
   var payment=document.getElementById('tut-payment').value;
   var notes=document.getElementById('tut-notes').value.trim();
-  if(!student||!date||rate<=0||hours<=0){showToast('Please fill all required fields');return;}
+  if(!date){showToast('Please enter a date');return;}
   var data={student_name:student,rate_per_hour:rate,hours_worked:hours,date:date,payment_method:payment,notes:notes};
   setSyncDot('syncing');
   if(editId){await sbUpd('tutoring_sessions',editId,data);var idx=allSessions.findIndex(function(s){return s.id===editId;});if(idx>=0)allSessions[idx]=Object.assign(allSessions[idx],data);}
@@ -1044,7 +1050,7 @@ async function saveEvent(){
   var flat=parseFloat(document.getElementById('mus-flat').value)||0;
   var hourly=parseFloat(document.getElementById('mus-hourly-rate').value)||0;
   var hours=parseFloat(document.getElementById('mus-hours').value)||0;
-  if(!name||!date){showToast('Please fill all required fields');return;}
+  if(!date){showToast('Please enter a date');return;}
   var data={event_name:name,date:date,pay_type:musPayType,flat_rate:flat,hourly_rate:hourly,hours_worked:hours,payment_method:payment,notes:notes};
   setSyncDot('syncing');
   if(editId){await sbUpd('music_events',editId,data);var idx=allEvents.findIndex(function(e){return e.id===editId;});if(idx>=0)allEvents[idx]=Object.assign(allEvents[idx],data);}
@@ -1061,7 +1067,7 @@ async function saveClass(){
   var att=parseInt(document.getElementById('dan-attendees').value)||0;
   var payment=document.getElementById('dan-payment').value;
   var notes=document.getElementById('dan-notes').value.trim();
-  if(!date||price<=0||att<=0){showToast('Please fill all required fields');return;}
+  if(!date){showToast('Please enter a date');return;}
   var data={date:date,price_per_attendee:price,num_attendees:att,payment_method:payment,notes:notes};
   setSyncDot('syncing');
   if(editId){await sbUpd('dance_classes',editId,data);var idx=allClasses.findIndex(function(c){return c.id===editId;});if(idx>=0)allClasses[idx]=Object.assign(allClasses[idx],data);}
@@ -1071,25 +1077,117 @@ async function saveClass(){
 async function deleteClass(){var id=document.getElementById('dan-income-edit-id').value;if(!id||!confirm('Delete?'))return;setSyncDot('syncing');await sbDel('dance_classes',id);allClasses=allClasses.filter(function(c){return c.id!==id;});closeModal('modal-dan-income');setSyncDot('synced');renderAll();showToast('Deleted');}
 function editClass(id){var c=allClasses.find(function(x){return x.id===id;});if(!c)return;resetModal('modal-dan-income');document.getElementById('dan-income-title').textContent='Edit Class';document.getElementById('dan-income-edit-id').value=id;document.getElementById('dan-date').value=c.date||'';document.getElementById('dan-price').value=c.price_per_attendee||'';document.getElementById('dan-attendees').value=c.num_attendees||'';document.getElementById('dan-payment').value=c.payment_method||'';document.getElementById('dan-notes').value=c.notes||'';document.getElementById('dan-income-del').style.display='';openModal('modal-dan-income');}
 
-function setSkiPrice(){var sel=document.getElementById('ski-product');var opt=sel.options[sel.selectedIndex];var p=opt?opt.getAttribute('data-price'):'';if(p)document.getElementById('ski-price').value=p;}
+// Skincare multi-product row management
+var SKI_PRICES = {'Soap':12,'Hair Oil':22,'Lotion':18,'Facial Cleanser':28};
+var skiRowCount = 0;
+
+function buildSkiRowHTML(idx) {
+  return '<div class="ski-row" id="ski-row-'+idx+'" style="background:var(--navy3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:10px">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+    '<span style="font-size:12px;font-weight:700;color:var(--muted)">PRODUCT '+(idx+1)+'</span>' +
+    (idx>0?'<button onclick="removeSkiRow('+idx+')" style="background:none;border:none;color:var(--red);font-size:18px;cursor:pointer">×</button>':'') +
+    '</div>' +
+    '<div class="form-group"><select class="form-select" id="ski-product-'+idx+'" onchange="setSkiPriceRow('+idx+')">' +
+    '<option value="">Select product...</option>' +
+    '<option value="Soap" data-price="12">Soap — $12.00</option>' +
+    '<option value="Hair Oil" data-price="22">Hair Oil — $22.00</option>' +
+    '<option value="Lotion" data-price="18">Lotion — $18.00</option>' +
+    '<option value="Facial Cleanser" data-price="28">Facial Cleanser — $28.00</option>' +
+    '</select></div>' +
+    '<div class="form-row">' +
+    '<div class="form-group"><label class="form-label">Price Each ($)</label><input type="number" class="form-input" id="ski-price-'+idx+'" placeholder="0.00" inputmode="decimal"></div>' +
+    '<div class="form-group"><label class="form-label">Quantity</label><input type="number" class="form-input" id="ski-qty-'+idx+'" placeholder="1" inputmode="numeric" value="1"></div>' +
+    '</div>' +
+    '</div>';
+}
+
+function initSkiRows() {
+  skiRowCount = 1;
+  document.getElementById('ski-product-rows').innerHTML = buildSkiRowHTML(0);
+}
+
+function addSkiRow() {
+  var container = document.getElementById('ski-product-rows');
+  var div = document.createElement('div');
+  div.innerHTML = buildSkiRowHTML(skiRowCount);
+  container.appendChild(div.firstChild);
+  skiRowCount++;
+}
+
+function removeSkiRow(idx) {
+  var row = document.getElementById('ski-row-'+idx);
+  if(row) row.remove();
+}
+
+function setSkiPriceRow(idx) {
+  var sel = document.getElementById('ski-product-'+idx);
+  var opt = sel.options[sel.selectedIndex];
+  var p = opt ? opt.getAttribute('data-price') : '';
+  if(p) document.getElementById('ski-price-'+idx).value = p;
+}
+
+// legacy single-product compat
+function setSkiPrice(){
+  var sel=document.getElementById('ski-product');if(!sel)return;
+  var opt=sel.options[sel.selectedIndex];var p=opt?opt.getAttribute('data-price'):'';if(p)document.getElementById('ski-price').value=p;
+}
 async function saveSale(){
   var editId=document.getElementById('ski-income-edit-id').value;
   var date=document.getElementById('ski-date').value;
-  var product=document.getElementById('ski-product').value;
-  var price=parseFloat(document.getElementById('ski-price').value)||0;
-  var qty=parseInt(document.getElementById('ski-qty').value)||1;
   var market=document.getElementById('ski-marketplace').value.trim();
   var payment=document.getElementById('ski-payment').value;
   var notes=document.getElementById('ski-notes').value.trim();
-  if(!date||!product){showToast('Please fill all required fields');return;}
-  var data={date:date,product_type:product,price:price,quantity:qty,marketplace:market,payment_method:payment,notes:notes};
+  if(!date){showToast('Please enter a date');return;}
   setSyncDot('syncing');
-  if(editId){await sbUpd('skincare_sales',editId,data);var idx=allSales.findIndex(function(s){return s.id===editId;});if(idx>=0)allSales[idx]=Object.assign(allSales[idx],data);}
-  else{await sbIns('skincare_sales',Object.assign({id:genId()},data));await loadAll();}
-  closeModal('modal-ski-income');setSyncDot('synced');renderAll();showToast(editId?'Sale updated!':'Sale saved!');
+
+  if(editId){
+    // Single-record edit mode (legacy — uses first row only)
+    var product=document.getElementById('ski-product-0')?document.getElementById('ski-product-0').value:'';
+    var price=parseFloat(document.getElementById('ski-price-0')?document.getElementById('ski-price-0').value:0)||0;
+    var qty=parseInt(document.getElementById('ski-qty-0')?document.getElementById('ski-qty-0').value:1)||1;
+    var data={date:date,product_type:product,price:price,quantity:qty,marketplace:market,payment_method:payment,notes:notes};
+    await sbUpd('skincare_sales',editId,data);
+    var idx=allSales.findIndex(function(s){return s.id===editId;});if(idx>=0)allSales[idx]=Object.assign(allSales[idx],data);
+    closeModal('modal-ski-income');setSyncDot('synced');renderAll();showToast('Sale updated!');
+    return;
+  }
+
+  // Collect all product rows
+  var rows=document.querySelectorAll('#ski-product-rows .ski-row');
+  var inserts=[];
+  rows.forEach(function(row){
+    var id=row.id.replace('ski-row-','');
+    var product=(document.getElementById('ski-product-'+id)||{}).value||'';
+    var price=parseFloat((document.getElementById('ski-price-'+id)||{}).value)||0;
+    var qty=parseInt((document.getElementById('ski-qty-'+id)||{}).value)||1;
+    if(product||price>0){
+      inserts.push({id:genId(),date:date,product_type:product,price:price,quantity:qty,marketplace:market,payment_method:payment,notes:notes});
+    }
+  });
+  if(!inserts.length){showToast('Please add at least one product');return;}
+  await Promise.all(inserts.map(function(row){return sbIns('skincare_sales',row);}));
+  await loadAll();
+  closeModal('modal-ski-income');setSyncDot('synced');renderAll();
+  showToast('&#10003; '+inserts.length+' product sale'+(inserts.length>1?'s':'')+' saved!');
 }
 async function deleteSale(){var id=document.getElementById('ski-income-edit-id').value;if(!id||!confirm('Delete?'))return;setSyncDot('syncing');await sbDel('skincare_sales',id);allSales=allSales.filter(function(s){return s.id!==id;});closeModal('modal-ski-income');setSyncDot('synced');renderAll();showToast('Deleted');}
-function editSale(id){var s=allSales.find(function(x){return x.id===id;});if(!s)return;resetModal('modal-ski-income');document.getElementById('ski-income-title').textContent='Edit Sale';document.getElementById('ski-income-edit-id').value=id;document.getElementById('ski-date').value=s.date||'';document.getElementById('ski-product').value=s.product_type||'';document.getElementById('ski-price').value=s.price||'';document.getElementById('ski-qty').value=s.quantity||'';document.getElementById('ski-marketplace').value=s.marketplace||'';document.getElementById('ski-payment').value=s.payment_method||'';document.getElementById('ski-notes').value=s.notes||'';document.getElementById('ski-income-del').style.display='';openModal('modal-ski-income');}
+function editSale(id){
+  var s=allSales.find(function(x){return x.id===id;});if(!s)return;
+  resetModal('modal-ski-income');
+  initSkiRows();
+  document.getElementById('ski-income-title').textContent='Edit Sale';
+  document.getElementById('ski-income-edit-id').value=id;
+  document.getElementById('ski-date').value=s.date||'';
+  document.getElementById('ski-marketplace').value=s.marketplace||'';
+  document.getElementById('ski-payment').value=s.payment_method||'';
+  document.getElementById('ski-notes').value=s.notes||'';
+  // Pre-fill first row
+  if(document.getElementById('ski-product-0')) document.getElementById('ski-product-0').value=s.product_type||'';
+  if(document.getElementById('ski-price-0')) document.getElementById('ski-price-0').value=s.price||'';
+  if(document.getElementById('ski-qty-0')) document.getElementById('ski-qty-0').value=s.quantity||1;
+  document.getElementById('ski-income-del').style.display='';
+  openModal('modal-ski-income');
+}
 
 function toggleRepeatOpts(prefix){var cb=document.getElementById(prefix+'-exp-repeat');var opts=document.getElementById(prefix+'-repeat-opts');if(opts)opts.style.display=(cb&&cb.checked)?'block':'none';}
 function calcNextDate(dateStr,freq){var p=dateStr.split('-');var d=new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));if(freq==='monthly')d.setMonth(d.getMonth()+1);else d.setFullYear(d.getFullYear()+1);return d.toISOString().split('T')[0];}
@@ -1105,7 +1203,7 @@ async function saveExpense(biz){
   var notes=document.getElementById(p+'-exp-notes').value.trim();
   var isRepeat=(document.getElementById(p+'-exp-repeat')||{}).checked;
   var freq=(document.getElementById(p+'-exp-freq')||{}).value||'monthly';
-  if(!date||!vendor||amount<=0){showToast('Please fill all required fields');return;}
+  if(!date){showToast('Please enter a date');return;}
   setSyncDot('syncing');
   var fileObjs=pendingFileObjects[p]||[];
   var uploaded=await (fileObjs.length>0?uploadFiles(fileObjs,genId()):Promise.resolve([])).catch(function(){return[];});
@@ -1206,15 +1304,20 @@ function switchBiz(biz){
   document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
   document.getElementById('tab-'+biz).classList.add('active');
   document.getElementById('header-biz-label').textContent=BN[biz];
-  if(activePage==='overview')renderOverview();
-  else if(activePage==='export')renderExport();
-  else if(activePage==='earnings')renderEarnings();
+  // Always navigate to overview when switching business tab
+  document.querySelectorAll('.page').forEach(function(v){v.classList.remove('active');});
+  document.querySelectorAll('.tnav-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('page-overview').classList.add('active');
+  document.getElementById('tnav-overview').classList.add('active');
+  activePage='overview';
+  document.getElementById('main').scrollTop=0;
+  renderOverview();
 }
 
 function showAddOptions(biz){addPickerBiz=biz;document.getElementById('add-type-title').textContent='Add to '+BN[biz];openModal('add-type-modal');}
 function openIncomeFromPicker(){closeModal('add-type-modal');openIncomeModal(addPickerBiz);}
 function openExpenseFromPicker(){closeModal('add-type-modal');openExpenseModal(addPickerBiz);}
-function openIncomeModal(biz){var p=pfx(biz);resetModal('modal-'+p+'-income');var titles={tutoring:'Log Session',music:'Log Event',dance:'Log Class',skincare:'Log Product Sale'};document.getElementById(p+'-income-title').textContent=titles[biz];openModal('modal-'+p+'-income');}
+function openIncomeModal(biz){var p=pfx(biz);resetModal('modal-'+p+'-income');var titles={tutoring:'Log Session',music:'Log Event',dance:'Log Class',skincare:'Log Product Sale'};document.getElementById(p+'-income-title').textContent=titles[biz];if(biz==='skincare')initSkiRows();openModal('modal-'+p+'-income');}
 function openExpenseModal(biz){var p=pfx(biz);resetModal('modal-'+p+'-expense');document.getElementById(p+'-exp-title').textContent='Add Expense';var rr=document.getElementById(p+'-repeat-row');if(rr)rr.style.display='';openModal('modal-'+p+'-expense');}
 
 function openModal(id){document.getElementById(id).classList.add('open');}
