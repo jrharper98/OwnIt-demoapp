@@ -849,8 +849,16 @@ function renderDocs(){
   var h='<div class="page-title">Tax Forms</div>';
   h+='<div class="page-sub">Upload and store your 1099 and Schedule C forms.</div>';
   h+='<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;margin-bottom:12px">';
-  h+='<div class="form-group" style="margin-bottom:10px"><label class="form-label">Tax Year for Upload</label>';
-  h+='<input type="number" class="form-input" id="doc-year-input" placeholder="'+new Date().getFullYear()+'" inputmode="numeric" style="max-width:120px"></div>';
+  h+='<div class="form-row" style="margin-bottom:12px">';
+  h+='<div class="form-group" style="margin-bottom:0"><label class="form-label">Tax Year</label>';
+  h+='<input type="number" class="form-input" id="doc-year-input" placeholder="'+new Date().getFullYear()+'" inputmode="numeric"></div>';
+  h+='<div class="form-group" style="margin-bottom:0"><label class="form-label">Business</label>';
+  h+='<select class="form-select" id="doc-upload-biz">';
+  h+='<option value="Tutoring"'+(activeBiz==="tutoring"?" selected":"")+'>📚 Tutoring</option>';
+  h+='<option value="Music Gigs"'+(activeBiz==="music"?" selected":"")+'>🎵 Music Gigs</option>';
+  h+='<option value="Dance Classes"'+(activeBiz==="dance"?" selected":"")+'>💃 Dance Classes</option>';
+  h+='<option value="Skincare Line"'+(activeBiz==="skincare"?" selected":"")+'>🧴 Skincare Line</option>';
+  h+='</select></div></div>';
   h+='<div class="upload-zone" onclick="document.getElementById(\'doc-file-real\').click()">';
   h+='<div class="upload-zone-icon">📎</div>';
   h+='<div class="upload-zone-text">Tap to upload 1099 or Schedule C form</div>';
@@ -911,11 +919,12 @@ function uploadDocs(input){
   var uploadBiz=bizEl?bizEl.value:BN[activeBiz];
   var rows=files.map(function(f){return{id:genId(),name:f.name,biz:uploadBiz,uploaded:today,year:year};});
   setSyncDot('syncing');
-  Promise.all(rows.map(function(row){ return sbInsRep('docs', row); }))
-    .then(function(){ return loadAll(); })
-    .then(function(){ showToast('&#10003; '+files.length+' form(s) uploaded'); setSyncDot('synced'); renderDocs(); })
-    .catch(function(){ setSyncDot('error'); showToast('Upload failed'); });
+  Promise.all(rows.map(function(row){return sbInsRep('docs',row);}))
+    .then(function(){return loadAll();})
+    .then(function(){showToast('&#10003; '+files.length+' form(s) uploaded');setSyncDot('synced');renderDocs();})
+    .catch(function(){setSyncDot('error');showToast('Upload failed');});
 }
+
 function delDoc(id){if(!confirm('Remove this form?'))return;setSyncDot('syncing');sbDel('docs',id).then(function(){return loadAll();}).then(function(){showToast('Removed');renderDocs();});}
 
 function renderExport(){
