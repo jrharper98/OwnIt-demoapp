@@ -752,44 +752,56 @@ function buildIncomeList(biz){
     if(!items.length) return '<div class="empty-st"><div class="empty-ic">📚</div>No sessions yet.</div>';
     items.forEach(function(s){
       var earn=(parseFloat(s.rate_per_hour)||0)*(parseFloat(s.hours_worked)||0);
-      h+='<div class="log-entry"><div class="le-row" onclick="editSession(\''+s.id+'\')">';
-      h+='<div class="le-left"><div class="le-title">'+(s.student_name||'Student')+'</div>';
+      var sf=!s.student_name||!s.rate_per_hour||!s.hours_worked||unassigned(s.payment_method);
+      h+='<div class="log-entry'+(sf?' flagged':'')+'"><div class="le-row" onclick="editSession(\''+s.id+'\')">';
+      h+='<div class="le-left"><div class="le-title">'+(s.student_name||'— no student —')+'</div>';
       h+='<div class="le-meta">'+fmtDate(s.date)+' &middot; '+(s.hours_worked||0)+'h @ '+fmt(s.rate_per_hour)+'/hr</div>';
+      if(sf) h+='<span class="flag-pill">&#9888;&#65039; Incomplete</span>';
       if(s.notes) h+='<span class="cat-pill">'+s.notes+'</span>';
-      h+='</div><div class="le-right"><div class="le-amount c-in">'+fmt(earn)+'</div><div class="le-pay">'+(s.payment_method||'')+'</div></div></div></div>';
+      h+='</div><div class="le-right"><div class="le-amount c-in">'+fmt(earn)+'</div><div class="le-pay">'+(s.payment_method||'')+'</div></div></div>';
+      h+='<div class="le-actions"><button class="btn-edit" onclick="editSession(\''+s.id+'\')">Edit</button><button class="btn-del" onclick="delIncomeById(\'tutoring_sessions\',\''+s.id+'\',event)">Del</button></div></div>';
     });
   } else if(biz==='music'){
     var items=allEvents.filter(function(x){return inPeriod(x.date);});
     if(!items.length) return '<div class="empty-st"><div class="empty-ic">🎵</div>No events yet.</div>';
     items.forEach(function(ev){
       var earn=ev.pay_type==='flat'?(parseFloat(ev.flat_rate)||0):(parseFloat(ev.hourly_rate)||0)*(parseFloat(ev.hours_worked)||0);
-      h+='<div class="log-entry"><div class="le-row" onclick="editEvent(\''+ev.id+'\')">';
-      h+='<div class="le-left"><div class="le-title">'+(ev.event_name||'Event')+'</div>';
+      var ef=!ev.event_name||unassigned(ev.payment_method)||earn===0;
+      h+='<div class="log-entry'+(ef?' flagged':'')+'"><div class="le-row" onclick="editEvent(\''+ev.id+'\')">';
+      h+='<div class="le-left"><div class="le-title">'+(ev.event_name||'— no event name —')+'</div>';
       h+='<div class="le-meta">'+fmtDate(ev.date)+' &middot; '+(ev.pay_type==='flat'?'Flat Rate':(ev.hours_worked||0)+'h @ '+fmt(ev.hourly_rate)+'/hr')+'</div>';
+      if(ef) h+='<span class="flag-pill">&#9888;&#65039; Incomplete</span>';
       if(ev.notes) h+='<span class="cat-pill">'+ev.notes+'</span>';
-      h+='</div><div class="le-right"><div class="le-amount c-in">'+fmt(earn)+'</div><div class="le-pay">'+(ev.payment_method||'')+'</div></div></div></div>';
+      h+='</div><div class="le-right"><div class="le-amount c-in">'+fmt(earn)+'</div><div class="le-pay">'+(ev.payment_method||'')+'</div></div></div>';
+      h+='<div class="le-actions"><button class="btn-edit" onclick="editEvent(\''+ev.id+'\')">Edit</button><button class="btn-del" onclick="delIncomeById(\'music_events\',\''+ev.id+'\',event)">Del</button></div></div>';
     });
   } else if(biz==='dance'){
     var items=allClasses.filter(function(x){return inPeriod(x.date);});
     if(!items.length) return '<div class="empty-st"><div class="empty-ic">💃</div>No classes yet.</div>';
     items.forEach(function(c){
       var earn=(parseFloat(c.price_per_attendee)||0)*(parseInt(c.num_attendees)||0);
-      h+='<div class="log-entry"><div class="le-row" onclick="editClass(\''+c.id+'\')">';
+      var cf=!c.price_per_attendee||!c.num_attendees||unassigned(c.payment_method);
+      h+='<div class="log-entry'+(cf?' flagged':'')+'"><div class="le-row" onclick="editClass(\''+c.id+'\')">';
       h+='<div class="le-left"><div class="le-title">Dance Class</div>';
-      h+='<div class="le-meta">'+fmtDate(c.date)+' &middot; '+(c.num_attendees||0)+' attendees @ '+fmt(c.price_per_attendee)+' each</div>';
+      h+='<div class="le-meta">'+fmtDate(c.date)+' &middot; '+(c.num_attendees||'?')+' attendees @ '+fmt(c.price_per_attendee)+' each</div>';
+      if(cf) h+='<span class="flag-pill">&#9888;&#65039; Incomplete</span>';
       if(c.notes) h+='<span class="cat-pill">'+c.notes+'</span>';
-      h+='</div><div class="le-right"><div class="le-amount c-in">'+fmt(earn)+'</div><div class="le-pay">'+(c.payment_method||'')+'</div></div></div></div>';
+      h+='</div><div class="le-right"><div class="le-amount c-in">'+fmt(earn)+'</div><div class="le-pay">'+(c.payment_method||'')+'</div></div></div>';
+      h+='<div class="le-actions"><button class="btn-edit" onclick="editClass(\''+c.id+'\')">Edit</button><button class="btn-del" onclick="delIncomeById(\'dance_classes\',\''+c.id+'\',event)">Del</button></div></div>';
     });
   } else if(biz==='skincare'){
     var items=allSales.filter(function(x){return inPeriod(x.date);});
     if(!items.length) return '<div class="empty-st"><div class="empty-ic">🧴</div>No sales yet.</div>';
     items.forEach(function(s){
       var earn=(parseFloat(s.price)||0)*(parseInt(s.quantity)||0);
-      h+='<div class="log-entry"><div class="le-row" onclick="editSale(\''+s.id+'\')">';
-      h+='<div class="le-left"><div class="le-title">'+(s.product_type||'Product')+'</div>';
+      var skf=!s.product_type||unassigned(s.payment_method);
+      h+='<div class="log-entry'+(skf?' flagged':'')+'"><div class="le-row" onclick="editSale(\''+s.id+'\')">';
+      h+='<div class="le-left"><div class="le-title">'+(s.product_type||'— no product —')+'</div>';
       h+='<div class="le-meta">'+fmtDate(s.date)+' &middot; Qty: '+(s.quantity||1)+(s.marketplace?' &middot; '+s.marketplace:'')+'</div>';
-      h+='<span class="cat-pill">'+(s.product_type||'')+'</span>';
-      h+='</div><div class="le-right"><div class="le-amount c-in">'+fmt(earn)+'</div><div class="le-pay">'+(s.payment_method||'')+'</div></div></div></div>';
+      if(skf) h+='<span class="flag-pill">&#9888;&#65039; Incomplete</span>';
+      if(s.product_type) h+='<span class="cat-pill">'+s.product_type+'</span>';
+      h+='</div><div class="le-right"><div class="le-amount c-in">'+fmt(earn)+'</div><div class="le-pay">'+(s.payment_method||'')+'</div></div></div>';
+      h+='<div class="le-actions"><button class="btn-edit" onclick="editSale(\''+s.id+'\')">Edit</button><button class="btn-del" onclick="delIncomeById(\'skincare_sales\',\''+s.id+'\',event)">Del</button></div></div>';
     });
   }
   return h;
@@ -824,6 +836,7 @@ function buildExpenseList(biz){
   });
   return h;
 }
+
 
 function renderDocs(){
   var filterYear='',filterBiz='',filterType='';
@@ -1059,6 +1072,7 @@ async function delIncomeById(table, id, evt){
   else if(table==='skincare_sales') allSales=allSales.filter(function(x){return x.id!==id;});
   setSyncDot('synced'); renderAll(); showToast('Entry deleted');
 }
+
 
 async function deleteSession(){var id=document.getElementById('tut-income-edit-id').value;if(!id||!confirm('Delete?'))return;setSyncDot('syncing');await sbDel('tutoring_sessions',id);allSessions=allSessions.filter(function(s){return s.id!==id;});closeModal('modal-tut-income');setSyncDot('synced');renderAll();showToast('Deleted');}
 function editSession(id){var s=allSessions.find(function(x){return x.id===id;});if(!s)return;resetModal('modal-tut-income');document.getElementById('tut-income-title').textContent='Edit Session';document.getElementById('tut-income-edit-id').value=id;document.getElementById('tut-student').value=s.student_name||'';document.getElementById('tut-rate').value=s.rate_per_hour||'';document.getElementById('tut-hours').value=s.hours_worked||'';document.getElementById('tut-date').value=s.date||'';document.getElementById('tut-payment').value=s.payment_method||'';document.getElementById('tut-notes').value=s.notes||'';document.getElementById('tut-income-del').style.display='';openModal('modal-tut-income');}
