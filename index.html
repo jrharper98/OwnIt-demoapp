@@ -284,8 +284,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--teal-lt);color:var(--whit
     <input type="hidden" id="tut-income-edit-id">
     <div class="form-group"><label class="form-label">Student Name</label><input type="text" class="form-input" id="tut-student" placeholder="e.g. Alex Johnson"></div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Rate / Hour ($)</label><input type="number" class="form-input" id="tut-rate" placeholder="25.00" inputmode="decimal"></div>
-      <div class="form-group"><label class="form-label">Hours Worked</label><input type="number" class="form-input" id="tut-hours" placeholder="1.5" inputmode="decimal"></div>
+      <div class="form-group"><label class="form-label">Rate / Hour ($)</label><input type="number" class="form-input" id="tut-rate" placeholder="" inputmode="decimal"></div>
+      <div class="form-group"><label class="form-label">Hours Worked</label><input type="number" class="form-input" id="tut-hours" placeholder="" inputmode="decimal"></div>
     </div>
     <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="tut-date"></div>
     <div class="form-group"><label class="form-label">Payment Method</label>
@@ -312,11 +312,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--teal-lt);color:var(--whit
         <button class="radio-btn selected" id="mus-btn-flat" onclick="setMusPay('flat')">Flat Rate</button>
         <button class="radio-btn" id="mus-btn-hourly" onclick="setMusPay('hourly')">Hourly</button>
       </div></div>
-    <div class="form-group" id="mus-flat-grp"><label class="form-label">Flat Rate ($)</label><input type="number" class="form-input" id="mus-flat" placeholder="200.00" inputmode="decimal"></div>
+    <div class="form-group" id="mus-flat-grp"><label class="form-label">Flat Rate ($)</label><input type="number" class="form-input" id="mus-flat" placeholder="" inputmode="decimal"></div>
     <div id="mus-hourly-grp" style="display:none">
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Hourly Rate ($)</label><input type="number" class="form-input" id="mus-hourly-rate" placeholder="50.00" inputmode="decimal"></div>
-        <div class="form-group"><label class="form-label">Hours</label><input type="number" class="form-input" id="mus-hours" placeholder="3" inputmode="decimal"></div>
+        <div class="form-group"><label class="form-label">Hourly Rate ($)</label><input type="number" class="form-input" id="mus-hourly-rate" placeholder="" inputmode="decimal"></div>
+        <div class="form-group"><label class="form-label">Hours</label><input type="number" class="form-input" id="mus-hours" placeholder="" inputmode="decimal"></div>
       </div></div>
     <div class="form-group"><label class="form-label">Payment Method</label>
       <select class="form-select unassigned" id="mus-payment" onchange="flagSel(this)">
@@ -337,8 +337,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--teal-lt);color:var(--whit
     <input type="hidden" id="dan-income-edit-id">
     <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="dan-date"></div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Price / Attendee ($)</label><input type="number" class="form-input" id="dan-price" placeholder="20.00" inputmode="decimal"></div>
-      <div class="form-group"><label class="form-label">Attendees</label><input type="number" class="form-input" id="dan-attendees" placeholder="8" inputmode="numeric"></div>
+      <div class="form-group"><label class="form-label">Price / Attendee ($)</label><input type="number" class="form-input" id="dan-price" placeholder="" inputmode="decimal"></div>
+      <div class="form-group"><label class="form-label">Attendees</label><input type="number" class="form-input" id="dan-attendees" placeholder="" inputmode="numeric"></div>
     </div>
     <div class="form-group"><label class="form-label">Payment Method</label>
       <select class="form-select unassigned" id="dan-payment" onchange="flagSel(this)">
@@ -894,7 +894,9 @@ function uploadDocs(input){
   var today=new Date().toLocaleDateString();
   var yEl=document.getElementById('doc-year-input');
   var year=(yEl?yEl.value:'')||new Date().getFullYear()+'';
-  var rows=files.map(function(f){return{id:genId(),name:f.name,biz:BN[activeBiz],uploaded:today,year:year};});
+  var bizEl=document.getElementById('doc-upload-biz');
+  var uploadBiz=bizEl?bizEl.value:BN[activeBiz];
+  var rows=files.map(function(f){return{id:genId(),name:f.name,biz:uploadBiz,uploaded:today,year:year};});
   setSyncDot('syncing');
   Promise.all(rows.map(function(row){ return sbInsRep('docs', row); }))
     .then(function(){ return loadAll(); })
@@ -1046,6 +1048,18 @@ async function saveSession(){
   else{await sbIns('tutoring_sessions',Object.assign({id:genId()},data));await loadAll();}
   closeModal('modal-tut-income');setSyncDot('synced');renderAll();showToast(editId?'Session updated!':'Session saved!');
 }
+async function delIncomeById(table, id, evt){
+  if(evt) evt.stopPropagation();
+  if(!confirm('Delete this entry?')) return;
+  setSyncDot('syncing');
+  await sbDel(table, id);
+  if(table==='tutoring_sessions') allSessions=allSessions.filter(function(x){return x.id!==id;});
+  else if(table==='music_events') allEvents=allEvents.filter(function(x){return x.id!==id;});
+  else if(table==='dance_classes') allClasses=allClasses.filter(function(x){return x.id!==id;});
+  else if(table==='skincare_sales') allSales=allSales.filter(function(x){return x.id!==id;});
+  setSyncDot('synced'); renderAll(); showToast('Entry deleted');
+}
+
 async function deleteSession(){var id=document.getElementById('tut-income-edit-id').value;if(!id||!confirm('Delete?'))return;setSyncDot('syncing');await sbDel('tutoring_sessions',id);allSessions=allSessions.filter(function(s){return s.id!==id;});closeModal('modal-tut-income');setSyncDot('synced');renderAll();showToast('Deleted');}
 function editSession(id){var s=allSessions.find(function(x){return x.id===id;});if(!s)return;resetModal('modal-tut-income');document.getElementById('tut-income-title').textContent='Edit Session';document.getElementById('tut-income-edit-id').value=id;document.getElementById('tut-student').value=s.student_name||'';document.getElementById('tut-rate').value=s.rate_per_hour||'';document.getElementById('tut-hours').value=s.hours_worked||'';document.getElementById('tut-date').value=s.date||'';document.getElementById('tut-payment').value=s.payment_method||'';document.getElementById('tut-notes').value=s.notes||'';document.getElementById('tut-income-del').style.display='';openModal('modal-tut-income');}
 
