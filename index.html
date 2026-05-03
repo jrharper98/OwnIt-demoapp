@@ -1613,6 +1613,21 @@ function flagSel(sel){var empty=!sel.value||sel.value===''||sel.value==='— Sel
 
 function showToast(msg){var t=document.getElementById('toast');t.innerHTML=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2400);}
 
+
+async function loadTaxSettings() {
+  try {
+    var year = new Date().getFullYear();
+    var r = await fetch(ADMIN_URL + '/rest/v1/tax_settings?tax_year=eq.' + year + '&order=category.asc', {
+      method: 'GET',
+      headers: { 'apikey': ADMIN_KEY, 'Authorization': 'Bearer ' + ADMIN_KEY, 'Accept': 'application/json' }
+    });
+    if (!r.ok) return;
+    var rows = await r.json();
+    if (!Array.isArray(rows) || !rows.length) return;
+    rows.forEach(function(row) { SC_MAP[row.category] = row.schedule_c_line; });
+  } catch(e) { /* silently use hardcoded SC_MAP fallback */ }
+}
+
 // Safety net — show app after 8s regardless
 var initTimeout = setTimeout(function(){
   showApp();
