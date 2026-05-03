@@ -1644,6 +1644,8 @@ function showToast(msg){var t=document.getElementById('toast');t.innerHTML=msg;t
 
 (function init(){
   try{
+    // Render earnings immediately with empty data so page is never blank
+    try{renderEarnings();}catch(e){}
     setTimeout(function(){showApp();},8000);
     // Race loadTaxSettings against a 3s timeout so it never blocks init
     var taxPromise = Promise.race([
