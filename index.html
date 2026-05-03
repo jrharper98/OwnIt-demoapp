@@ -1618,11 +1618,14 @@ var initTimeout = setTimeout(function(){
   showApp();
 }, 8000);
 
-// Load tax settings and data in parallel, then show app (matches BLT pattern)
-Promise.all([
-  loadTaxSettings().catch(function(){}),
-  loadAll().catch(function(){})
-]).then(function(){
+// Load tax settings first (with 3s timeout), then load data, then show app
+// Sequential ensures loadAll arrays are fully set before showApp/renderAll fires
+var taxSettingsDone = loadTaxSettings().catch(function(){});
+var taxTimeout = new Promise(function(resolve){ setTimeout(resolve, 3000); });
+
+Promise.race([taxSettingsDone, taxTimeout]).then(function(){
+  return loadAll();
+}).then(function(){
   clearTimeout(initTimeout);
   try{ autoLogDueRepeats(); }catch(e){}
   showApp();
