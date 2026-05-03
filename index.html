@@ -704,15 +704,18 @@ function renderEarnings(){
   h+='<div class="earn-hero-sub">'+fmt(totalInc)+' income &nbsp;&middot;&nbsp; '+fmt(totalExp)+' expenses</div></div>';
   bizList.forEach(function(b){
     var inc=incomeFor(b,true),exp=expensesFor(b,true),n=inc-exp;
-    h+='<div class="biz-earn-card" onclick="goToOverview(\''+b+'\')" style="cursor:pointer;transition:border-color 0.2s">'+
-      '<div class="biz-earn-name">'+BE[b]+' '+BN[b]+' <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto">View &rsaquo;</span></div>';
+    h+='<div class="biz-earn-card" onclick="goToOverview(\''+b+'\')" style="cursor:pointer">';
+    h+='<div class="biz-earn-name">'+BE[b]+' '+BN[b]+'<span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto">View &rsaquo;</span></div>';
     h+='<div class="biz-row"><span class="biz-row-lbl">Income</span><span class="c-in" style="font-weight:700">'+fmt(inc)+'</span></div>';
     h+='<div class="biz-row"><span class="biz-row-lbl">Expenses</span><span class="c-ex" style="font-weight:700">'+fmt(exp)+'</span></div>';
-    h+='<hr class="biz-divider"><div class="biz-row"><span class="biz-row-lbl">Net</span><span class="'+(n>=0?'c-pr':'c-lo')+'" style="font-weight:700">'+fmt(n)+'</span></div></div>';
+    h+='<hr class="biz-divider">';
+    h+='<div class="biz-row"><span class="biz-row-lbl">Net</span><span class="'+(n>=0?'c-pr':'c-lo')+'" style="font-weight:700">'+fmt(n)+'</span></div>';
+    h+='</div>';
   });
   h+='<div class="tax-note">&#9888;&#65039; Estimate only. Consult a tax professional for actual tax liability.</div>';
   document.getElementById('page-earnings').innerHTML=h;
 }
+
 
 function renderOverview(){
   var biz=activeBiz,today=tod();
