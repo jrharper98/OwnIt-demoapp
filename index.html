@@ -1644,26 +1644,32 @@ function showToast(msg){var t=document.getElementById('toast');t.innerHTML=msg;t
 
 (function init(){
   try{
-    // Render earnings immediately with empty data so page is never blank
+    // Render immediately so page is never blank
     try{renderEarnings();}catch(e){}
+    // Safety net
     setTimeout(function(){showApp();},8000);
-    // Race loadTaxSettings against a 3s timeout so it never blocks init
-    var taxPromise = Promise.race([
-      loadTaxSettings(),
-      new Promise(function(res){ setTimeout(res, 3000); })
-    ]);
-    taxPromise.then(function(){
-      return loadAll();
-    }).then(function(){
-      try{autoLogDueRepeats();}catch(e){}
-      try{renderAll();}catch(e){}
-      showApp();
+    // Load tax settings with timeout, then load data regardless
+    var taxDone = false;
+    setTimeout(function(){
+      if(!taxDone){ taxDone=true; runLoadAll(); }
+    }, 2000);
+    loadTaxSettings().then(function(){
+      if(!taxDone){ taxDone=true; runLoadAll(); }
     }).catch(function(){
-      try{renderAll();}catch(e){}
-      showApp();
+      if(!taxDone){ taxDone=true; runLoadAll(); }
     });
-  }catch(e){showApp();}
+  }catch(e){ showApp(); }
 })();
+
+function runLoadAll(){
+  loadAll().then(function(){
+    try{autoLogDueRepeats();}catch(e){}
+    try{renderAll();}catch(e){}
+    showApp();
+  }).catch(function(){
+    showApp();
+  });
+}
 </script>
 </body>
 </html>
