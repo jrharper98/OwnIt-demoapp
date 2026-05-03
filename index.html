@@ -1611,32 +1611,22 @@ function showToast(msg){var t=document.getElementById('toast');t.innerHTML=msg;t
 
 (function init(){
   try{
-    // Render immediately so page is never blank
-    try{renderEarnings();}catch(e){}
-    // Safety net
+    // Safety net — show app after 8s regardless
     setTimeout(function(){showApp();},8000);
-    // Load tax settings with timeout, then load data regardless
-    var taxDone = false;
-    setTimeout(function(){
-      if(!taxDone){ taxDone=true; runLoadAll(); }
-    }, 2000);
-    loadTaxSettings().then(function(){
-      if(!taxDone){ taxDone=true; runLoadAll(); }
+    // Run tax settings + data load IN PARALLEL — don't wait for one before the other
+    Promise.all([
+      loadTaxSettings().catch(function(){}),
+      loadAll().catch(function(){})
+    ]).then(function(){
+      try{autoLogDueRepeats();}catch(e){}
+      try{renderAll();}catch(e){}
+      showApp();
     }).catch(function(){
-      if(!taxDone){ taxDone=true; runLoadAll(); }
+      try{renderAll();}catch(e){}
+      showApp();
     });
   }catch(e){ showApp(); }
 })();
-
-function runLoadAll(){
-  loadAll().then(function(){
-    try{autoLogDueRepeats();}catch(e){}
-    try{renderAll();}catch(e){}
-    showApp();
-  }).catch(function(){
-    showApp();
-  });
-}
 </script>
 </body>
 </html>
