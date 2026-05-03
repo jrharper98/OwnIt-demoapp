@@ -943,15 +943,6 @@ function uploadDocs(input){
 function delDoc(id){if(!confirm('Remove this form?'))return;setSyncDot('syncing');sbDel('docs',id).then(function(){return loadAll();}).then(function(){showToast('Removed');renderDocs();});}
 
 function renderExport(){
-  var biz=activeBiz;
-  var exps=allExpenses.filter(function(e){return e.business===biz;});
-  var scMap={};
-  exps.forEach(function(e){
-    if(!e.category||unassigned(e.category))return;
-    var line=SC_MAP[e.category]||'Other expenses (ln 48)';
-    scMap[line]=(scMap[line]||0)+(parseFloat(e.amount)||0);
-  });
-  var scTotal=Object.keys(scMap).reduce(function(s,k){return s+scMap[k];},0);
   var h='<div class="page-title">Export Data</div>';
   h+='<div class="page-sub">Download records for Google Sheets or your accountant.</div>';
   h+='<div class="export-card"><div class="export-card-title">📊 CSV Export</div>';
@@ -961,7 +952,6 @@ function renderExport(){
     h+='<button class="export-dl-btn" onclick="exportCSV(\''+b+'\')">Download</button></div>';
   });
   h+='<button class="export-dl-btn" style="width:100%;margin-top:10px;padding:12px;border-radius:var(--r);font-size:13px" onclick="exportCSV(\'all\')">&#8599; Export All Businesses</button></div>';
-  var scBiz=activeBiz;
   h+='<div class="export-card"><div class="export-card-title">🧾 Schedule C Summary</div>';
   h+='<div class="export-card-sub">IRS-ready summary — choose a business:</div>';
   h+='<div class="form-group" style="margin-bottom:12px"><select class="form-select" id="sc-biz-select" onchange="updateScPreview()">';
@@ -969,33 +959,7 @@ function renderExport(){
     h+='<option value="'+b+'"'+(b===activeBiz?' selected':'')+'>'+BE[b]+' '+BN[b]+'</option>';
   });
   h+='</select></div>';
-  h+='<div id="sc-preview-area">';
-  // SC preview rendered inline for active biz
-  var scExps=allExpenses.filter(function(e){return e.business===scBiz;});
-  var scMapBiz={};
-  scExps.forEach(function(e){
-    if(!e.category||unassigned(e.category))return;
-    var line=SC_MAP[e.category]||'Other expenses (ln 48)';
-    scMapBiz[line]=(scMapBiz[line]||0)+(parseFloat(e.amount)||0);
-  });
-  var scTot=Object.keys(scMapBiz).reduce(function(s,k){return s+scMapBiz[k];},0);
-  if(Object.keys(scMapBiz).length){
-    h+='<div class="sc-preview">';
-    Object.keys(scMapBiz).sort(function(a,b){return scMapBiz[b]-scMapBiz[a];}).forEach(function(k){h+='<div class="sc-row"><span style="color:var(--muted)">'+k+'</span><strong>'+fmt(scMapBiz[k])+'</strong></div>';});
-    h+='<div class="sc-total"><span>Total Deductible</span><strong>'+fmt(scTot)+'</strong></div>';
-    h+='<div class="sc-note">* IRS Schedule C line items shown. Consult a tax professional.</div></div>';
-  } else {
-    h+='<div class="empty-st" style="padding:16px"><div class="empty-ic">🧾</div>No categorized expenses yet.</div>';
-  }
-  h+='</div>';
-  if(Object.keys(scMap).length){
-    h+='<div class="sc-preview">';
-    Object.keys(scMap).sort(function(a,b){return scMap[b]-scMap[a];}).forEach(function(k){h+='<div class="sc-row"><span style="color:var(--muted)">'+k+'</span><strong>'+fmt(scMap[k])+'</strong></div>';});
-    h+='<div class="sc-total"><span>Total Deductible</span><strong>'+fmt(scTotal)+'</strong></div>';
-    h+='<div class="sc-note">* IRS Schedule C line items shown. Consult a tax professional.</div></div>';
-  } else {
-    h+='<div class="empty-st" style="padding:16px"><div class="empty-ic">🧾</div>No categorized expenses yet.</div>';
-  }
+  h+='<div id="sc-preview-area"></div>';
   h+='<div style="margin-top:8px">';
   ['tutoring','music','dance','skincare'].forEach(function(b){
     h+='<div class="export-biz-row"><div class="export-biz-name">'+BE[b]+' '+BN[b]+'</div>';
@@ -1003,7 +967,10 @@ function renderExport(){
   });
   h+='</div></div>';
   document.getElementById('export-content').innerHTML=h;
+  // Render SC preview after DOM is set
+  updateScPreview();
 }
+
 
 function exportCSV(biz){
   if(biz==='all'){
