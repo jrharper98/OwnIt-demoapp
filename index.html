@@ -23,7 +23,7 @@
 html,body{height:100%;overflow:hidden;}
 body{font-family:'DM Sans',sans-serif;background:var(--teal-lt);color:var(--white);display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;}
 
-#loading{position:fixed;inset:0;background:var(--teal-lt);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999;}
+#loading{position:fixed;inset:0;background:var(--teal-lt);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:9999;}
 .load-crown{width:72px;height:72px;animation:pulse 1.2s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.85;transform:scale(0.93);}}
 .load-text{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--navy);}
@@ -629,7 +629,11 @@ function loadAll() {
     setSyncDot('synced'); return true;
   }).catch(function() { setSyncDot('error'); return false; });
 }
-function showApp() { var el=document.getElementById('loading'); if(el) el.style.display='none'; }
+function showApp() {
+  var el=document.getElementById('loading');
+  if(el) el.style.display='none';
+  try{ renderAll(); }catch(e){ console.error('Render error:',e); }
+}
 
 function fmt(n) { return '$'+(parseFloat(n)||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
 function fmtDate(s) { if(!s) return ''; var d=new Date(s+'T12:00:00'); return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
@@ -1609,24 +1613,23 @@ function flagSel(sel){var empty=!sel.value||sel.value===''||sel.value==='— Sel
 
 function showToast(msg){var t=document.getElementById('toast');t.innerHTML=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2400);}
 
-(function init(){
-  try{
-    // Safety net — show app after 8s regardless
-    setTimeout(function(){showApp();},8000);
-    // Run tax settings + data load IN PARALLEL — don't wait for one before the other
-    Promise.all([
-      loadTaxSettings().catch(function(){}),
-      loadAll().catch(function(){})
-    ]).then(function(){
-      try{autoLogDueRepeats();}catch(e){}
-      try{renderAll();}catch(e){}
-      showApp();
-    }).catch(function(){
-      try{renderAll();}catch(e){}
-      showApp();
-    });
-  }catch(e){ showApp(); }
-})();
+// Safety net — show app after 8s regardless
+var initTimeout = setTimeout(function(){
+  showApp();
+}, 8000);
+
+// Load tax settings and data in parallel, then show app (matches BLT pattern)
+Promise.all([
+  loadTaxSettings().catch(function(){}),
+  loadAll().catch(function(){})
+]).then(function(){
+  clearTimeout(initTimeout);
+  try{ autoLogDueRepeats(); }catch(e){}
+  showApp();
+}).catch(function(){
+  clearTimeout(initTimeout);
+  showApp();
+});
 </script>
 </body>
 </html>
