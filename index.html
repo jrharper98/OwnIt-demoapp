@@ -336,9 +336,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--teal-lt);color:var(--whit
     <div class="modal-title" id="dan-income-title">Log Class</div>
     <input type="hidden" id="dan-income-edit-id">
     <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="dan-date"></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Price / Attendee ($)</label><input type="number" class="form-input" id="dan-price" placeholder="" inputmode="decimal"></div>
-      <div class="form-group"><label class="form-label">Attendees</label><input type="number" class="form-input" id="dan-attendees" placeholder="" inputmode="numeric"></div>
+    <!-- Ticket tier rows -->
+    <div id="dan-tier-rows"></div>
+    <button class="add-btn" style="margin-bottom:14px;width:100%;justify-content:center" onclick="addDanTier()">+ Add Another Ticket Tier</button>
+    <div class="ytd-card" style="margin-bottom:14px">
+      <div class="stat-label" style="margin-bottom:4px">Class Total</div>
+      <div id="dan-total-display" style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--green)">$0.00</div>
     </div>
     <div class="form-group"><label class="form-label">Payment Method</label>
       <select class="form-select unassigned" id="dan-payment" onchange="flagSel(this)">
@@ -366,6 +369,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--teal-lt);color:var(--whit
     <!-- Product rows -->
     <div id="ski-product-rows"></div>
     <button class="add-btn" style="margin-bottom:14px;width:100%;justify-content:center" onclick="addSkiRow()">+ Add Another Product</button>
+    <div class="ytd-card" style="margin-bottom:14px">
+      <div class="stat-label" style="margin-bottom:4px">Sale Total</div>
+      <div id="ski-total-display" style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--green)">$0.00</div>
+    </div>
     <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-input" id="ski-notes" placeholder="Optional"></div>
     <button class="submit-btn" onclick="saveSale()">Save Sale</button>
     <button class="delete-btn" id="ski-income-del" style="display:none" onclick="deleteSale()">Delete Sale</button>
@@ -518,9 +525,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--teal-lt);color:var(--whit
   </div>
 </div>
 
+
 <script>
 var SB_URL = 'https://qoswwueqmfjmlfkkhwtf.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvc3d3dWVxbWZqbWxma2tod3RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNDY3NTgsImV4cCI6MjA5MjcyMjc1OH0.HQfRqmiooiFcc2bpmzZNfna6AkbAwndUV-53FxqC5DU';
+// OwnIt Admin — shared tax settings project
+var ADMIN_URL = 'https://fmcsorwwpjujbpvzgscc.supabase.co';
+var ADMIN_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtY3Nvcnd3cGp1amJwdnpnc2NjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NjcyMTUsImV4cCI6MjA5MzM0MzIxNX0.mPcng0oBO9TJzrGWZJOCLBAaz7oAaRjedVlnI5AjHEg';
 
 var BN = { tutoring:'Tutoring', music:'Music Gigs', dance:'Dance Classes', skincare:'Skincare Line' };
 var BE = { tutoring:'📚', music:'🎵', dance:'💃', skincare:'🧴' };
@@ -693,7 +704,8 @@ function renderEarnings(){
   h+='<div class="earn-hero-sub">'+fmt(totalInc)+' income &nbsp;&middot;&nbsp; '+fmt(totalExp)+' expenses</div></div>';
   bizList.forEach(function(b){
     var inc=incomeFor(b,true),exp=expensesFor(b,true),n=inc-exp;
-    h+='<div class="biz-earn-card"><div class="biz-earn-name">'+BE[b]+' '+BN[b]+'</div>';
+    h+='<div class="biz-earn-card" onclick="goToOverview(\''+b+'\')" style="cursor:pointer;transition:border-color 0.2s">'+
+      '<div class="biz-earn-name">'+BE[b]+' '+BN[b]+' <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto">View &rsaquo;</span></div>';
     h+='<div class="biz-row"><span class="biz-row-lbl">Income</span><span class="c-in" style="font-weight:700">'+fmt(inc)+'</span></div>';
     h+='<div class="biz-row"><span class="biz-row-lbl">Expenses</span><span class="c-ex" style="font-weight:700">'+fmt(exp)+'</span></div>';
     h+='<hr class="biz-divider"><div class="biz-row"><span class="biz-row-lbl">Net</span><span class="'+(n>=0?'c-pr':'c-lo')+'" style="font-weight:700">'+fmt(n)+'</span></div></div>';
@@ -946,8 +958,33 @@ function renderExport(){
     h+='<button class="export-dl-btn" onclick="exportCSV(\''+b+'\')">Download</button></div>';
   });
   h+='<button class="export-dl-btn" style="width:100%;margin-top:10px;padding:12px;border-radius:var(--r);font-size:13px" onclick="exportCSV(\'all\')">&#8599; Export All Businesses</button></div>';
+  var scBiz=activeBiz;
   h+='<div class="export-card"><div class="export-card-title">🧾 Schedule C Summary</div>';
-  h+='<div class="export-card-sub">IRS-ready summary. Showing: <strong>'+BN[biz]+'</strong> — switch business tab to change.</div>';
+  h+='<div class="export-card-sub">IRS-ready summary — choose a business:</div>';
+  h+='<div class="form-group" style="margin-bottom:12px"><select class="form-select" id="sc-biz-select" onchange="updateScPreview()">';
+  ['tutoring','music','dance','skincare'].forEach(function(b){
+    h+='<option value="'+b+'"'+(b===activeBiz?' selected':'')+'>'+BE[b]+' '+BN[b]+'</option>';
+  });
+  h+='</select></div>';
+  h+='<div id="sc-preview-area">';
+  // SC preview rendered inline for active biz
+  var scExps=allExpenses.filter(function(e){return e.business===scBiz;});
+  var scMapBiz={};
+  scExps.forEach(function(e){
+    if(!e.category||unassigned(e.category))return;
+    var line=SC_MAP[e.category]||'Other expenses (ln 48)';
+    scMapBiz[line]=(scMapBiz[line]||0)+(parseFloat(e.amount)||0);
+  });
+  var scTot=Object.keys(scMapBiz).reduce(function(s,k){return s+scMapBiz[k];},0);
+  if(Object.keys(scMapBiz).length){
+    h+='<div class="sc-preview">';
+    Object.keys(scMapBiz).sort(function(a,b){return scMapBiz[b]-scMapBiz[a];}).forEach(function(k){h+='<div class="sc-row"><span style="color:var(--muted)">'+k+'</span><strong>'+fmt(scMapBiz[k])+'</strong></div>';});
+    h+='<div class="sc-total"><span>Total Deductible</span><strong>'+fmt(scTot)+'</strong></div>';
+    h+='<div class="sc-note">* IRS Schedule C line items shown. Consult a tax professional.</div></div>';
+  } else {
+    h+='<div class="empty-st" style="padding:16px"><div class="empty-ic">🧾</div>No categorized expenses yet.</div>';
+  }
+  h+='</div>';
   if(Object.keys(scMap).length){
     h+='<div class="sc-preview">';
     Object.keys(scMap).sort(function(a,b){return scMap[b]-scMap[a];}).forEach(function(k){h+='<div class="sc-row"><span style="color:var(--muted)">'+k+'</span><strong>'+fmt(scMap[k])+'</strong></div>';});
@@ -966,29 +1003,67 @@ function renderExport(){
 }
 
 function exportCSV(biz){
-  var rows=[],bizList=biz==='all'?['tutoring','music','dance','skincare']:[biz];
-  bizList.forEach(function(b){
-    if(b==='tutoring'){
-      rows.push(['Type','Date','Student','Rate/hr','Hours','Earned','Payment','Notes']);
-      allSessions.forEach(function(s){var earn=(parseFloat(s.rate_per_hour)||0)*(parseFloat(s.hours_worked)||0);rows.push(['Income',s.date||'',s.student_name||'',s.rate_per_hour||'',s.hours_worked||'',earn.toFixed(2),s.payment_method||'',s.notes||'']);});
-    } else if(b==='music'){
-      rows.push(['Type','Date','Event','Pay Type','Rate','Hours','Earned','Payment','Notes']);
-      allEvents.forEach(function(ev){var earn=ev.pay_type==='flat'?(parseFloat(ev.flat_rate)||0):(parseFloat(ev.hourly_rate)||0)*(parseFloat(ev.hours_worked)||0);rows.push(['Income',ev.date||'',ev.event_name||'',ev.pay_type||'',ev.pay_type==='flat'?ev.flat_rate:ev.hourly_rate||'',ev.hours_worked||'',earn.toFixed(2),ev.payment_method||'',ev.notes||'']);});
-    } else if(b==='dance'){
-      rows.push(['Type','Date','Price/Attendee','Attendees','Earned','Payment','Notes']);
-      allClasses.forEach(function(c){var earn=(parseFloat(c.price_per_attendee)||0)*(parseInt(c.num_attendees)||0);rows.push(['Income',c.date||'',c.price_per_attendee||'',c.num_attendees||'',earn.toFixed(2),c.payment_method||'',c.notes||'']);});
-    } else if(b==='skincare'){
-      rows.push(['Type','Date','Product','Price','Qty','Total','Marketplace','Payment','Notes']);
-      allSales.forEach(function(s){var earn=(parseFloat(s.price)||0)*(parseInt(s.quantity)||0);rows.push(['Income',s.date||'',s.product_type||'',s.price||'',s.quantity||'',earn.toFixed(2),s.marketplace||'',s.payment_method||'',s.notes||'']);});
-    }
-    rows.push([]);
-    rows.push(['EXPENSES','Date','Vendor','Amount','Category','Payment','Notes','Schedule C Line']);
-    allExpenses.filter(function(e){return e.business===b;}).forEach(function(e){rows.push(['Expense',e.date||'',e.vendor||'',(parseFloat(e.amount)||0).toFixed(2),e.category||'',e.payment_method||'',e.notes||'',SC_MAP[e.category]||'']);});
-    rows.push([]);
+  if(biz==='all'){
+    // Format matches all_businesses_expenses.csv: expenses only, flat table, all businesses
+    var rows=[['Business','Date','Vendor','Amount','Category','Payment Method','Note','Receipts','Schedule C Line']];
+    var bizList=['tutoring','music','dance','skincare'];
+    bizList.forEach(function(b){
+      var bizName=BN[b];
+      allExpenses.filter(function(e){return e.business===b;}).forEach(function(e){
+        var files=parseFiles(e.files);
+        var fileNames=files.map(function(f){return typeof f==='object'?f.name:f;}).filter(Boolean).join('; ');
+        rows.push([
+          bizName,
+          e.date||'',
+          e.vendor||'',
+          (parseFloat(e.amount)||0).toFixed(2),
+          e.category||'',
+          e.payment_method||'',
+          e.notes||'',
+          fileNames,
+          SC_MAP[e.category]||''
+        ]);
+      });
+    });
+    dlCSV(rows,'All_Businesses_export.csv');
+    showToast('Downloaded!');
+    return;
+  }
+  // Single business — income + expenses
+  var rows=[];
+  if(biz==='tutoring'){
+    rows.push(['Type','Date','Student','Rate/hr','Hours','Earned','Payment','Notes']);
+    allSessions.forEach(function(s){var earn=(parseFloat(s.rate_per_hour)||0)*(parseFloat(s.hours_worked)||0);rows.push(['Income',s.date||'',s.student_name||'',s.rate_per_hour||'',s.hours_worked||'',earn.toFixed(2),s.payment_method||'',s.notes||'']);});
+  } else if(biz==='music'){
+    rows.push(['Type','Date','Event','Pay Type','Rate','Hours','Earned','Payment','Notes']);
+    allEvents.forEach(function(ev){var earn=ev.pay_type==='flat'?(parseFloat(ev.flat_rate)||0):(parseFloat(ev.hourly_rate)||0)*(parseFloat(ev.hours_worked)||0);rows.push(['Income',ev.date||'',ev.event_name||'',ev.pay_type||'',ev.pay_type==='flat'?ev.flat_rate:ev.hourly_rate||'',ev.hours_worked||'',earn.toFixed(2),ev.payment_method||'',ev.notes||'']);});
+  } else if(biz==='dance'){
+    rows.push(['Type','Date','Price/Attendee','Attendees','Discount Type','Discount Val','Total','Payment','Notes']);
+    allClasses.forEach(function(c){
+      var base=(parseFloat(c.price_per_attendee)||0)*(parseInt(c.num_attendees)||0);
+      var disc=c.discount_type==='dollar'?Math.min(base,parseFloat(c.discount_val)||0):c.discount_type==='percent'?base*(parseFloat(c.discount_val)||0)/100:0;
+      rows.push(['Income',c.date||'',c.price_per_attendee||'',c.num_attendees||'',c.discount_type||'none',c.discount_val||0,(base-disc).toFixed(2),c.payment_method||'',c.notes||'']);
+    });
+  } else if(biz==='skincare'){
+    rows.push(['Type','Date','Product','Price','Qty','Subtotal','Discount Type','Discount Val','Total','Marketplace','Payment','Notes']);
+    allSales.forEach(function(s){
+      var sub=(parseFloat(s.price)||0)*(parseInt(s.quantity)||0);
+      var disc=s.discount_type==='dollar'?Math.min(sub,parseFloat(s.discount_val)||0):s.discount_type==='percent'?sub*(parseFloat(s.discount_val)||0)/100:0;
+      rows.push(['Income',s.date||'',s.product_type||'',s.price||'',s.quantity||'',sub.toFixed(2),s.discount_type||'none',s.discount_val||0,(sub-disc).toFixed(2),s.marketplace||'',s.payment_method||'',s.notes||'']);
+    });
+  }
+  rows.push([]);
+  rows.push(['EXPENSES','Date','Vendor','Amount','Category','Payment','Notes','Receipts','Schedule C Line']);
+  allExpenses.filter(function(e){return e.business===biz;}).forEach(function(e){
+    var files=parseFiles(e.files);
+    var fileNames=files.map(function(f){return typeof f==='object'?f.name:f;}).filter(Boolean).join('; ');
+    rows.push(['Expense',e.date||'',e.vendor||'',(parseFloat(e.amount)||0).toFixed(2),e.category||'',e.payment_method||'',e.notes||'',fileNames,SC_MAP[e.category]||'']);
   });
-  dlCSV(rows,(biz==='all'?'All_Businesses':BN[biz].replace(/\s/g,'_'))+'_export.csv');
+  dlCSV(rows,BN[biz].replace(/\s/g,'_')+'_export.csv');
   showToast('Downloaded!');
 }
+
+
 function exportScheduleC(biz){
   var exps=allExpenses.filter(function(e){return e.business===biz;}),scMap={},total=0;
   exps.forEach(function(e){if(!e.category||unassigned(e.category))return;var line=SC_MAP[e.category]||'Other expenses (ln 48)';scMap[line]=(scMap[line]||0)+(parseFloat(e.amount)||0);});
@@ -998,6 +1073,33 @@ function exportScheduleC(biz){
   dlCSV(rows,BN[biz].replace(/\s/g,'_')+'_ScheduleC.csv');
   showToast('Schedule C downloaded!');
 }
+function updateScPreview(){
+  var sel=document.getElementById('sc-biz-select');
+  if(!sel) return;
+  var biz=sel.value;
+  var exps=allExpenses.filter(function(e){return e.business===biz;});
+  var scMap={};
+  exps.forEach(function(e){
+    if(!e.category||unassigned(e.category))return;
+    var line=SC_MAP[e.category]||'Other expenses (ln 48)';
+    scMap[line]=(scMap[line]||0)+(parseFloat(e.amount)||0);
+  });
+  var scTotal=Object.keys(scMap).reduce(function(s,k){return s+scMap[k];},0);
+  var area=document.getElementById('sc-preview-area');
+  if(!area) return;
+  var h='';
+  if(Object.keys(scMap).length){
+    h+='<div class="sc-preview">';
+    Object.keys(scMap).sort(function(a,b){return scMap[b]-scMap[a];}).forEach(function(k){h+='<div class="sc-row"><span style="color:var(--muted)">'+k+'</span><strong>'+fmt(scMap[k])+'</strong></div>';});
+    h+='<div class="sc-total"><span>Total Deductible</span><strong>'+fmt(scTotal)+'</strong></div>';
+    h+='<div class="sc-note">* IRS Schedule C line items. Consult a tax professional.</div></div>';
+  } else {
+    h+='<div class="empty-st" style="padding:16px"><div class="empty-ic">🧾</div>No categorized expenses yet.</div>';
+  }
+  area.innerHTML=h;
+}
+
+
 function dlCSV(rows,name){
   var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c||'').replace(/"/g,'""')+'"';}).join(',');}).join('\n');
   var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);
@@ -1106,20 +1208,117 @@ async function saveEvent(){
 async function deleteEvent(){var id=document.getElementById('mus-income-edit-id').value;if(!id||!confirm('Delete?'))return;setSyncDot('syncing');await sbDel('music_events',id);allEvents=allEvents.filter(function(e){return e.id!==id;});closeModal('modal-mus-income');setSyncDot('synced');renderAll();showToast('Deleted');}
 function editEvent(id){var ev=allEvents.find(function(x){return x.id===id;});if(!ev)return;resetModal('modal-mus-income');document.getElementById('mus-income-title').textContent='Edit Event';document.getElementById('mus-income-edit-id').value=id;document.getElementById('mus-event-name').value=ev.event_name||'';document.getElementById('mus-date').value=ev.date||'';document.getElementById('mus-notes').value=ev.notes||'';document.getElementById('mus-payment').value=ev.payment_method||'';setMusPay(ev.pay_type||'flat');document.getElementById('mus-flat').value=ev.flat_rate||'';document.getElementById('mus-hourly-rate').value=ev.hourly_rate||'';document.getElementById('mus-hours').value=ev.hours_worked||'';document.getElementById('mus-income-del').style.display='';openModal('modal-mus-income');}
 
+// Dance tier management
+var danTierCount = 0;
+
+function buildDanTierHTML(idx){
+  return '<div class="ski-row" id="dan-tier-'+idx+'" style="background:var(--navy3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:10px">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+    '<span style="font-size:12px;font-weight:700;color:var(--muted)">TICKET TIER '+(idx+1)+'</span>' +
+    (idx>0?'<button onclick="removeDanTier('+idx+')" style="background:none;border:none;color:var(--red);font-size:18px;cursor:pointer">×</button>':'') +
+    '</div>' +
+    '<div class="form-row">' +
+    '<div class="form-group"><label class="form-label">Price / Attendee ($)</label><input type="number" class="form-input" id="dan-price-'+idx+'" placeholder="" inputmode="decimal" oninput="calcDanTotal()"></div>' +
+    '<div class="form-group"><label class="form-label">Attendees</label><input type="number" class="form-input" id="dan-att-'+idx+'" placeholder="" inputmode="numeric" value="1" oninput="calcDanTotal()"></div>' +
+    '</div>' +
+    '<div class="form-row" style="margin-top:6px">' +
+    '<div class="form-group" style="margin-bottom:0"><label class="form-label">Discount</label>' +
+    '<select class="form-select" id="dan-disc-type-'+idx+'" onchange="toggleDanDisc('+idx+');calcDanTotal()" style="font-size:13px;padding:8px 10px">' +
+    '<option value="none">No discount</option>' +
+    '<option value="dollar">$ Off</option>' +
+    '<option value="percent">% Off</option>' +
+    '</select></div>' +
+    '<div class="form-group" style="margin-bottom:0"><label class="form-label">Amount</label>' +
+    '<input type="number" class="form-input" id="dan-disc-val-'+idx+'" placeholder="0" inputmode="decimal" oninput="calcDanTotal()" style="display:none"></div>' +
+    '</div></div>';
+}
+
+function toggleDanDisc(idx){
+  var type=(document.getElementById('dan-disc-type-'+idx)||{}).value||'none';
+  var valEl=document.getElementById('dan-disc-val-'+idx);
+  if(valEl) valEl.style.display=type==='none'?'none':'';
+}
+
+function initDanTiers(){
+  danTierCount=1;
+  document.getElementById('dan-tier-rows').innerHTML=buildDanTierHTML(0);
+  var disp=document.getElementById('dan-total-display');
+  if(disp) disp.textContent='$0.00';
+}
+
+function addDanTier(){
+  var container=document.getElementById('dan-tier-rows');
+  var div=document.createElement('div');
+  div.innerHTML=buildDanTierHTML(danTierCount);
+  container.appendChild(div.firstChild);
+  danTierCount++;
+}
+
+function removeDanTier(idx){
+  var row=document.getElementById('dan-tier-'+idx);
+  if(row){ row.remove(); calcDanTotal(); }
+}
+
+function calcDanTotal(){
+  var total=0;
+  var rows=document.querySelectorAll('#dan-tier-rows .ski-row');
+  rows.forEach(function(row){
+    var id=row.id.replace('dan-tier-','');
+    var price=parseFloat((document.getElementById('dan-price-'+id)||{}).value)||0;
+    var att=parseInt((document.getElementById('dan-att-'+id)||{}).value)||0;
+    var subtotal=price*att;
+    var discType=(document.getElementById('dan-disc-type-'+id)||{}).value||'none';
+    var discVal=parseFloat((document.getElementById('dan-disc-val-'+id)||{}).value)||0;
+    if(discType==='dollar') subtotal=Math.max(0,subtotal-discVal);
+    else if(discType==='percent') subtotal=Math.max(0,subtotal*(1-discVal/100));
+    total+=subtotal;
+  });
+  var disp=document.getElementById('dan-total-display');
+  if(disp) disp.textContent='$'+total.toFixed(2);
+}
+
+
 async function saveClass(){
   var editId=document.getElementById('dan-income-edit-id').value;
   var date=document.getElementById('dan-date').value;
-  var price=parseFloat(document.getElementById('dan-price').value)||0;
-  var att=parseInt(document.getElementById('dan-attendees').value)||0;
   var payment=document.getElementById('dan-payment').value;
   var notes=document.getElementById('dan-notes').value.trim();
   if(!date){showToast('Please enter a date');return;}
-  var data={date:date,price_per_attendee:price,num_attendees:att,payment_method:payment,notes:notes};
   setSyncDot('syncing');
-  if(editId){await sbUpd('dance_classes',editId,data);var idx=allClasses.findIndex(function(c){return c.id===editId;});if(idx>=0)allClasses[idx]=Object.assign(allClasses[idx],data);}
-  else{await sbIns('dance_classes',Object.assign({id:genId()},data));await loadAll();}
-  closeModal('modal-dan-income');setSyncDot('synced');renderAll();showToast(editId?'Class updated!':'Class saved!');
+
+  if(editId){
+    var price=parseFloat((document.getElementById('dan-price-0')||{}).value)||0;
+    var att=parseInt((document.getElementById('dan-att-0')||{}).value)||0;
+    var discType=(document.getElementById('dan-disc-type-0')||{}).value||'none';
+    var discVal=parseFloat((document.getElementById('dan-disc-val-0')||{}).value)||0;
+    var data={date:date,price_per_attendee:price,num_attendees:att,discount_type:discType,discount_val:discVal,payment_method:payment,notes:notes};
+    await sbUpd('dance_classes',editId,data);
+    var idx=allClasses.findIndex(function(c){return c.id===editId;});
+    if(idx>=0) allClasses[idx]=Object.assign(allClasses[idx],data);
+    closeModal('modal-dan-income');setSyncDot('synced');renderAll();showToast('Class updated!');
+    return;
+  }
+
+  var rows=document.querySelectorAll('#dan-tier-rows .ski-row');
+  var inserts=[];
+  rows.forEach(function(row){
+    var id=row.id.replace('dan-tier-','');
+    var price=parseFloat((document.getElementById('dan-price-'+id)||{}).value)||0;
+    var att=parseInt((document.getElementById('dan-att-'+id)||{}).value)||0;
+    var discType=(document.getElementById('dan-disc-type-'+id)||{}).value||'none';
+    var discVal=parseFloat((document.getElementById('dan-disc-val-'+id)||{}).value)||0;
+    if(price>0||att>0){
+      inserts.push({id:genId(),date:date,price_per_attendee:price,num_attendees:att,discount_type:discType,discount_val:discVal,payment_method:payment,notes:notes});
+    }
+  });
+  if(!inserts.length){showToast('Please add at least one ticket tier');return;}
+  await Promise.all(inserts.map(function(row){return sbIns('dance_classes',row);}));
+  await loadAll();
+  closeModal('modal-dan-income');setSyncDot('synced');renderAll();
+  showToast('&#10003; '+inserts.length+' class tier'+(inserts.length>1?'s':'')+' saved!');
 }
+
+
 async function deleteClass(){var id=document.getElementById('dan-income-edit-id').value;if(!id||!confirm('Delete?'))return;setSyncDot('syncing');await sbDel('dance_classes',id);allClasses=allClasses.filter(function(c){return c.id!==id;});closeModal('modal-dan-income');setSyncDot('synced');renderAll();showToast('Deleted');}
 function editClass(id){var c=allClasses.find(function(x){return x.id===id;});if(!c)return;resetModal('modal-dan-income');document.getElementById('dan-income-title').textContent='Edit Class';document.getElementById('dan-income-edit-id').value=id;document.getElementById('dan-date').value=c.date||'';document.getElementById('dan-price').value=c.price_per_attendee||'';document.getElementById('dan-attendees').value=c.num_attendees||'';document.getElementById('dan-payment').value=c.payment_method||'';document.getElementById('dan-notes').value=c.notes||'';document.getElementById('dan-income-del').style.display='';openModal('modal-dan-income');}
 
@@ -1141,15 +1340,32 @@ function buildSkiRowHTML(idx) {
     '<option value="Facial Cleanser" data-price="28">Facial Cleanser — $28.00</option>' +
     '</select></div>' +
     '<div class="form-row">' +
-    '<div class="form-group"><label class="form-label">Price Each ($)</label><input type="number" class="form-input" id="ski-price-'+idx+'" placeholder="0.00" inputmode="decimal"></div>' +
-    '<div class="form-group"><label class="form-label">Quantity</label><input type="number" class="form-input" id="ski-qty-'+idx+'" placeholder="1" inputmode="numeric" value="1"></div>' +
+    '<div class="form-group"><label class="form-label">Price Each ($)</label><input type="number" class="form-input" id="ski-price-'+idx+'" placeholder="0.00" inputmode="decimal" oninput="calcSkiTotal()"></div>' +
+    '<div class="form-group"><label class="form-label">Quantity</label><input type="number" class="form-input" id="ski-qty-'+idx+'" placeholder="1" inputmode="numeric" value="1" oninput="calcSkiTotal()"></div>' +
     '</div>' +
-    '</div>';
+    '<div class="form-row" style="margin-top:6px">' +
+    '<div class="form-group" style="margin-bottom:0"><label class="form-label">Discount</label>' +
+    '<select class="form-select" id="ski-disc-type-'+idx+'" onchange="toggleSkiDisc('+idx+');calcSkiTotal()" style="font-size:13px;padding:8px 10px">' +
+    '<option value="none">No discount</option>' +
+    '<option value="dollar">$ Off</option>' +
+    '<option value="percent">% Off</option>' +
+    '</select></div>' +
+    '<div class="form-group" style="margin-bottom:0"><label class="form-label">Amount</label>' +
+    '<input type="number" class="form-input" id="ski-disc-val-'+idx+'" placeholder="0" inputmode="decimal" oninput="calcSkiTotal()" style="display:none"></div>' +
+    '</div></div>';
+}
+
+function toggleSkiDisc(idx){
+  var type=(document.getElementById('ski-disc-type-'+idx)||{}).value||'none';
+  var valEl=document.getElementById('ski-disc-val-'+idx);
+  if(valEl) valEl.style.display=type==='none'?'none':'';
 }
 
 function initSkiRows() {
   skiRowCount = 1;
   document.getElementById('ski-product-rows').innerHTML = buildSkiRowHTML(0);
+  var disp=document.getElementById('ski-total-display');
+  if(disp) disp.textContent='$0.00';
 }
 
 function addSkiRow() {
@@ -1162,21 +1378,41 @@ function addSkiRow() {
 
 function removeSkiRow(idx) {
   var row = document.getElementById('ski-row-'+idx);
-  if(row) row.remove();
+  if(row){ row.remove(); calcSkiTotal(); }
 }
 
 function setSkiPriceRow(idx) {
   var sel = document.getElementById('ski-product-'+idx);
   var opt = sel.options[sel.selectedIndex];
   var p = opt ? opt.getAttribute('data-price') : '';
-  if(p) document.getElementById('ski-price-'+idx).value = p;
+  if(p){ document.getElementById('ski-price-'+idx).value = p; calcSkiTotal(); }
 }
 
-// legacy single-product compat
+function calcSkiTotal(){
+  var total=0;
+  var rows=document.querySelectorAll('#ski-product-rows .ski-row');
+  rows.forEach(function(row){
+    var id=row.id.replace('ski-row-','');
+    var price=parseFloat((document.getElementById('ski-price-'+id)||{}).value)||0;
+    var qty=parseInt((document.getElementById('ski-qty-'+id)||{}).value)||0;
+    var subtotal=price*qty;
+    var discType=(document.getElementById('ski-disc-type-'+id)||{}).value||'none';
+    var discVal=parseFloat((document.getElementById('ski-disc-val-'+id)||{}).value)||0;
+    if(discType==='dollar') subtotal=Math.max(0,subtotal-discVal);
+    else if(discType==='percent') subtotal=Math.max(0,subtotal*(1-discVal/100));
+    total+=subtotal;
+  });
+  var disp=document.getElementById('ski-total-display');
+  if(disp) disp.textContent='$'+total.toFixed(2);
+}
+
+// legacy compat
 function setSkiPrice(){
   var sel=document.getElementById('ski-product');if(!sel)return;
   var opt=sel.options[sel.selectedIndex];var p=opt?opt.getAttribute('data-price'):'';if(p)document.getElementById('ski-price').value=p;
 }
+
+
 async function saveSale(){
   var editId=document.getElementById('ski-income-edit-id').value;
   var date=document.getElementById('ski-date').value;
@@ -1187,18 +1423,19 @@ async function saveSale(){
   setSyncDot('syncing');
 
   if(editId){
-    // Single-record edit mode (legacy — uses first row only)
-    var product=document.getElementById('ski-product-0')?document.getElementById('ski-product-0').value:'';
-    var price=parseFloat(document.getElementById('ski-price-0')?document.getElementById('ski-price-0').value:0)||0;
-    var qty=parseInt(document.getElementById('ski-qty-0')?document.getElementById('ski-qty-0').value:1)||1;
-    var data={date:date,product_type:product,price:price,quantity:qty,marketplace:market,payment_method:payment,notes:notes};
+    var product=(document.getElementById('ski-product-0')||{}).value||'';
+    var price=parseFloat((document.getElementById('ski-price-0')||{}).value)||0;
+    var qty=parseInt((document.getElementById('ski-qty-0')||{}).value)||1;
+    var discType=(document.getElementById('ski-disc-type-0')||{}).value||'none';
+    var discVal=parseFloat((document.getElementById('ski-disc-val-0')||{}).value)||0;
+    var data={date:date,product_type:product,price:price,quantity:qty,discount_type:discType,discount_val:discVal,marketplace:market,payment_method:payment,notes:notes};
     await sbUpd('skincare_sales',editId,data);
-    var idx=allSales.findIndex(function(s){return s.id===editId;});if(idx>=0)allSales[idx]=Object.assign(allSales[idx],data);
+    var idx=allSales.findIndex(function(s){return s.id===editId;});
+    if(idx>=0) allSales[idx]=Object.assign(allSales[idx],data);
     closeModal('modal-ski-income');setSyncDot('synced');renderAll();showToast('Sale updated!');
     return;
   }
 
-  // Collect all product rows
   var rows=document.querySelectorAll('#ski-product-rows .ski-row');
   var inserts=[];
   rows.forEach(function(row){
@@ -1206,8 +1443,10 @@ async function saveSale(){
     var product=(document.getElementById('ski-product-'+id)||{}).value||'';
     var price=parseFloat((document.getElementById('ski-price-'+id)||{}).value)||0;
     var qty=parseInt((document.getElementById('ski-qty-'+id)||{}).value)||1;
+    var discType=(document.getElementById('ski-disc-type-'+id)||{}).value||'none';
+    var discVal=parseFloat((document.getElementById('ski-disc-val-'+id)||{}).value)||0;
     if(product||price>0){
-      inserts.push({id:genId(),date:date,product_type:product,price:price,quantity:qty,marketplace:market,payment_method:payment,notes:notes});
+      inserts.push({id:genId(),date:date,product_type:product,price:price,quantity:qty,discount_type:discType,discount_val:discVal,marketplace:market,payment_method:payment,notes:notes});
     }
   });
   if(!inserts.length){showToast('Please add at least one product');return;}
@@ -1216,6 +1455,8 @@ async function saveSale(){
   closeModal('modal-ski-income');setSyncDot('synced');renderAll();
   showToast('&#10003; '+inserts.length+' product sale'+(inserts.length>1?'s':'')+' saved!');
 }
+
+
 async function deleteSale(){var id=document.getElementById('ski-income-edit-id').value;if(!id||!confirm('Delete?'))return;setSyncDot('syncing');await sbDel('skincare_sales',id);allSales=allSales.filter(function(s){return s.id!==id;});closeModal('modal-ski-income');setSyncDot('synced');renderAll();showToast('Deleted');}
 function editSale(id){
   var s=allSales.find(function(x){return x.id===id;});if(!s)return;
@@ -1345,6 +1586,12 @@ function switchPage(page){
   else if(page==='export')renderExport();
   else if(page==='earnings')renderEarnings();
 }
+function goToOverview(biz){
+  switchBiz(biz);
+  // switchBiz already navigates to overview
+}
+
+
 function switchBiz(biz){
   activeBiz=biz;
   document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
@@ -1363,7 +1610,7 @@ function switchBiz(biz){
 function showAddOptions(biz){addPickerBiz=biz;document.getElementById('add-type-title').textContent='Add to '+BN[biz];openModal('add-type-modal');}
 function openIncomeFromPicker(){closeModal('add-type-modal');openIncomeModal(addPickerBiz);}
 function openExpenseFromPicker(){closeModal('add-type-modal');openExpenseModal(addPickerBiz);}
-function openIncomeModal(biz){var p=pfx(biz);resetModal('modal-'+p+'-income');var titles={tutoring:'Log Session',music:'Log Event',dance:'Log Class',skincare:'Log Product Sale'};document.getElementById(p+'-income-title').textContent=titles[biz];if(biz==='skincare')initSkiRows();openModal('modal-'+p+'-income');}
+function openIncomeModal(biz){var p=pfx(biz);resetModal('modal-'+p+'-income');var titles={tutoring:'Log Session',music:'Log Event',dance:'Log Class',skincare:'Log Product Sale'};document.getElementById(p+'-income-title').textContent=titles[biz];if(biz==='skincare')initSkiRows();if(biz==='dance')initDanTiers();openModal('modal-'+p+'-income');}
 function openExpenseModal(biz){var p=pfx(biz);resetModal('modal-'+p+'-expense');document.getElementById(p+'-exp-title').textContent='Add Expense';var rr=document.getElementById(p+'-repeat-row');if(rr)rr.style.display='';openModal('modal-'+p+'-expense');}
 
 function openModal(id){document.getElementById(id).classList.add('open');}
@@ -1389,7 +1636,9 @@ function showToast(msg){var t=document.getElementById('toast');t.innerHTML=msg;t
 (function init(){
   try{
     setTimeout(function(){showApp();},8000);
-    loadAll().then(function(){
+    loadTaxSettings().then(function(){
+      return loadAll();
+    }).then(function(){
       try{autoLogDueRepeats();}catch(e){}
       try{renderAll();}catch(e){}
       showApp();
